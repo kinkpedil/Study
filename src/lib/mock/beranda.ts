@@ -242,10 +242,12 @@ export const notifications: NotificationItem[] = [
   },
 ];
 
+export type SearchType = "materi" | "soal" | "buku" | "diskusi";
+
 export interface SearchSuggestion {
   id: string;
   label: string;
-  type: "materi" | "soal" | "buku" | "diskusi";
+  type: SearchType;
 }
 
 export const searchSuggestions: SearchSuggestion[] = [
@@ -254,3 +256,84 @@ export const searchSuggestions: SearchSuggestion[] = [
   { id: "s3", label: "IPA Terpadu Kelas 8", type: "buku" },
   { id: "s4", label: "Cara menghafal rumus", type: "diskusi" },
 ];
+
+export interface SearchResult {
+  id: string;
+  title: string;
+  subtitle: string;
+  type: SearchType;
+  href: string;
+}
+
+/** Indeks pencarian tiruan — nanti diganti pencarian server-side. */
+export const searchIndex: SearchResult[] = [
+  {
+    id: "r1",
+    title: "Persamaan Linear Satu Variabel",
+    subtitle: "Materi · Matematika · Kelas 8",
+    type: "materi",
+    href: "/materi/persamaan-linear",
+  },
+  {
+    id: "r2",
+    title: "Latihan Pecahan & Desimal",
+    subtitle: "Paket soal · 10 soal · Matematika",
+    type: "soal",
+    href: "/latihan/pecahan",
+  },
+  {
+    id: "r3",
+    title: "Latihan Aljabar Dasar",
+    subtitle: "Paket soal · 12 soal · Matematika",
+    type: "soal",
+    href: "/latihan/aljabar-dasar",
+  },
+  {
+    id: "r4",
+    title: "IPA Terpadu Kelas 8",
+    subtitle: "Buku paket · Kemendikbud",
+    type: "buku",
+    href: "/perpustakaan/ipa-terpadu-8",
+  },
+  {
+    id: "r5",
+    title: "Matematika untuk SMP Kelas 8",
+    subtitle: "Buku paket · Kemendikbud",
+    type: "buku",
+    href: "/perpustakaan/matematika-smp-8",
+  },
+  {
+    id: "r6",
+    title: "Cara menghafal rumus dengan cepat",
+    subtitle: "Diskusi · Forum SMP · 4 balasan",
+    type: "diskusi",
+    href: "/forum/cara-menghafal-rumus",
+  },
+  {
+    id: "r7",
+    title: "Sistem Pencernaan Manusia",
+    subtitle: "Materi · IPA · Kelas 8",
+    type: "materi",
+    href: "/materi/sistem-pencernaan",
+  },
+  {
+    id: "r8",
+    title: "Teks Deskripsi",
+    subtitle: "Materi · Bahasa Indonesia · Kelas 8",
+    type: "materi",
+    href: "/materi/teks-deskripsi",
+  },
+];
+
+/** Pencarian tiruan sederhana atas judul & subjudul. */
+export function searchMock(query: string, limit = 6): SearchResult[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return searchIndex
+    .filter(
+      (r) =>
+        r.title.toLowerCase().includes(q) ||
+        r.subtitle.toLowerCase().includes(q),
+    )
+    .slice(0, limit);
+}
