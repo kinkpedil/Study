@@ -1,21 +1,32 @@
+"use client";
+
 import Link from "next/link";
 import { Bell, GraduationCap, Search } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { currentUser, notifications } from "@/lib/mock/beranda";
+import { notifications } from "@/lib/mock/beranda";
+import { useRole } from "@/components/role/role-context";
 
 function initials(name: string) {
   return name
     .split(" ")
+    .filter((w) => w.length > 2) // lewati sapaan seperti "Pak"/"Ibu"
     .slice(0, 2)
     .map((n) => n[0])
     .join("")
     .toUpperCase();
 }
 
+const roleLabel: Record<string, string> = {
+  siswa: "Siswa",
+  guru: "Guru",
+  admin: "Admin Sekolah",
+};
+
 export function Header() {
+  const { profile } = useRole();
   const unread = notifications.filter((n) => !n.read).length;
 
   return (
@@ -58,20 +69,26 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-primary/10 text-primary">
-              {initials(currentUser.name)}
+              {initials(profile.name)}
             </AvatarFallback>
           </Avatar>
           <div className="hidden text-left sm:block">
-            <p className="text-sm font-medium leading-tight">
-              {currentUser.name}
-            </p>
+            <p className="text-sm font-medium leading-tight">{profile.name}</p>
             <div className="flex items-center gap-1">
-              <Badge variant="smp" className="px-1.5 py-0 text-[10px]">
-                {currentUser.jenjang}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                Kelas {currentUser.kelas}
-              </span>
+              {profile.jenjang ? (
+                <>
+                  <Badge variant="smp" className="px-1.5 py-0 text-[10px]">
+                    {profile.jenjang}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    Kelas {profile.kelas}
+                  </span>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  {roleLabel[profile.role]}
+                </span>
+              )}
             </div>
           </div>
         </div>
