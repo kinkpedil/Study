@@ -3,11 +3,35 @@ import { z } from "zod";
 
 import { getCurrentUserId } from "@/lib/auth";
 import { petunjukSchema } from "@/lib/validation/bantuan-pr";
-import { bukaSesiBantuan } from "@/server/bantuan-pr";
+import { bukaSesiBantuan, listRiwayatBantuan } from "@/server/bantuan-pr";
 import { AIError } from "@/lib/ai/provider";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
+/**
+ * GET /api/bantuan-pr
+ * Riwayat sesi Bantuan PR milik pengguna (terbaru dulu).
+ */
+export async function GET() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Tidak terautentikasi." },
+        { status: 401 },
+      );
+    }
+    const data = await listRiwayatBantuan(userId);
+    return NextResponse.json({ data });
+  } catch (err) {
+    console.error("GET /api/bantuan-pr gagal:", err);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat mengambil riwayat." },
+      { status: 500 },
+    );
+  }
+}
 
 /**
  * POST /api/bantuan-pr

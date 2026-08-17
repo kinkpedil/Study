@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { and, eq, asc, ne, sql } from "drizzle-orm";
+import { and, eq, asc, desc, ne, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -157,6 +157,47 @@ export async function bukaSesiBantuan(
   });
 
   return { sessionId, judul, ...hasil };
+}
+
+export interface RiwayatSesi {
+  id: string;
+  judul: string;
+  mapel: string;
+  jenjang: string | null;
+  cuplikan: string;
+  status: string;
+  jumlahPetunjuk: number;
+  createdAt: string;
+}
+
+/** Daftar riwayat sesi Bantuan PR milik pengguna, terbaru dulu. */
+export async function listRiwayatBantuan(
+  profileId: string,
+  limit = 30,
+): Promise<RiwayatSesi[]> {
+  const rows = await db
+    .select({
+      id: homeworkSessions.id,
+      judul: homeworkSessions.judul,
+      mapel: homeworkSessions.mapel,
+      jenjang: homeworkSessions.jenjang,
+      cuplikan: homeworkSessions.pertanyaan,
+      status: homeworkSessions.status,
+      createdAt: homeworkSessions.createdAt,
+      jumlahPetunjuk: sql<number>`(
+        select count(*)::int from ${homeworkMessages} m
+        where m.session_id = ${homeworkSessions.id} and m.tipe = 'petunjuk'
+      )`,
+    })
+    .from(homeworkSessions)
+    .where(eq(homeworkSessions.profileId, profileId))
+    .orderBy(desc(homeworkSessions.createdAt))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    ...r,
+    createdAt: r.createdAt.toISOString(),
+  }));
 }
 
 export class BantuanError extends Error {
