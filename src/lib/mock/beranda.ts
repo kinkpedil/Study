@@ -25,12 +25,19 @@ export const currentUser: CurrentUser = {
   school: "SMP Negeri 1 Cerdas",
 };
 
+export interface ProgressStat {
+  /** Nilai minggu ini. */
+  nilai: number;
+  /** Selisih terhadap minggu lalu (bisa negatif). */
+  delta: number;
+}
+
 export interface ProgressSummary {
   mingguIni: {
-    soalDikerjakan: number;
-    menitBelajar: number;
-    rataRataNilai: number;
-    streakHari: number;
+    soalDikerjakan: ProgressStat;
+    menitBelajar: ProgressStat;
+    rataRataNilai: ProgressStat;
+    streakHari: ProgressStat;
   };
   targetMingguan: {
     tercapai: number;
@@ -44,10 +51,10 @@ export interface ProgressSummary {
 
 export const progressSummary: ProgressSummary = {
   mingguIni: {
-    soalDikerjakan: 84,
-    menitBelajar: 315,
-    rataRataNilai: 87,
-    streakHari: 6,
+    soalDikerjakan: { nilai: 84, delta: 12 },
+    menitBelajar: { nilai: 315, delta: -20 },
+    rataRataNilai: { nilai: 87, delta: 4 },
+    streakHari: { nilai: 6, delta: 1 },
   },
   targetMingguan: {
     tercapai: 5,
