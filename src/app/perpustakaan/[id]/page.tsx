@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getBuku } from "@/lib/mock/perpustakaan";
+import { SaveButton } from "@/components/perpustakaan/save-button";
 
 const jenjangBadge = { SD: "sd", SMP: "smp", SMA: "sma" } as const;
 
@@ -95,16 +96,19 @@ export default async function DetailBukuPage({
               </div>
             </dl>
 
-            <Button asChild size="lg" className="w-full sm:w-auto">
-              <a
-                href={buku.sumberUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Buka di sumber resmi
-              </a>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="lg">
+                <a
+                  href={buku.sumberUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Buka di sumber resmi
+                </a>
+              </Button>
+              <SaveButton bukuId={buku.id} className="h-11" />
+            </div>
           </div>
         </div>
 
