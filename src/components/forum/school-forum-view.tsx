@@ -37,10 +37,17 @@ export function SchoolForumView() {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Ruang internal <strong>{profile.school}</strong>: pengumuman, diskusi,
-        dan pengajuan masalah.
-      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Ruang internal <strong>{profile.school}</strong>: pengumuman,
+          diskusi, dan pengajuan masalah.
+        </p>
+        {profile.role === "admin" && (
+          <Button asChild variant="outline" size="sm" className="shrink-0">
+            <Link href="/forum/kelola">Kelola Forum</Link>
+          </Button>
+        )}
+      </div>
 
       {/* Pengumuman */}
       <section aria-label="Pengumuman" className="space-y-3">

@@ -307,6 +307,24 @@ export const pengaduanSekolah: Pengaduan[] = [
   },
 ];
 
+export interface Moderator {
+  id: string;
+  nama: string;
+  peran: "guru" | "siswa";
+  sejak: string;
+}
+
+export const moderatorSekolah: Moderator[] = [
+  { id: "md_1", nama: "Pak Bagus Santoso", peran: "guru", sejak: "Jan 2026" },
+  { id: "md_2", nama: "Citra Dewi", peran: "siswa", sejak: "Mar 2026" },
+];
+
+export const statusPengaduanLabel: Record<PengaduanStatus, string> = {
+  baru: "Baru",
+  diproses: "Diproses",
+  selesai: "Selesai",
+};
+
 export const scopeLabel: Record<ForumScope, string> = {
   jenjang: "Jenjang Saya",
   umum: "Forum Umum",
