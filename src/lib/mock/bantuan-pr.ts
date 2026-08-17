@@ -21,7 +21,9 @@ export interface HelpSession {
   mapel: string;
   cuplikan: string;
   timeAgo: string;
+  tanggal: string; // ISO
   jumlahPetunjuk: number;
+  selesai: boolean;
 }
 
 export const riwayatBantuan: HelpSession[] = [
@@ -31,7 +33,9 @@ export const riwayatBantuan: HelpSession[] = [
     mapel: "Matematika",
     cuplikan: "Bagaimana menyederhanakan (x²−4)/(x+2)?",
     timeAgo: "kemarin",
+    tanggal: "2026-08-16T09:10:00Z",
     jumlahPetunjuk: 3,
+    selesai: true,
   },
   {
     id: "hs_2",
@@ -39,7 +43,9 @@ export const riwayatBantuan: HelpSession[] = [
     mapel: "Fisika",
     cuplikan: "Kenapa benda bisa meluncur di bidang miring?",
     timeAgo: "3 hari lalu",
+    tanggal: "2026-08-14T13:40:00Z",
     jumlahPetunjuk: 4,
+    selesai: true,
   },
   {
     id: "hs_3",
@@ -47,7 +53,29 @@ export const riwayatBantuan: HelpSession[] = [
     mapel: "Bahasa Indonesia",
     cuplikan: "Cara cepat menemukan ide pokok?",
     timeAgo: "1 minggu lalu",
+    tanggal: "2026-08-10T08:00:00Z",
     jumlahPetunjuk: 2,
+    selesai: true,
+  },
+  {
+    id: "hs_4",
+    judul: "Reaksi asam dan basa",
+    mapel: "Kimia",
+    cuplikan: "Apa yang terjadi saat asam bertemu basa?",
+    timeAgo: "1 minggu lalu",
+    tanggal: "2026-08-09T15:20:00Z",
+    jumlahPetunjuk: 3,
+    selesai: false,
+  },
+  {
+    id: "hs_5",
+    judul: "Present perfect tense",
+    mapel: "Bahasa Inggris",
+    cuplikan: "Kapan memakai have/has + V3?",
+    timeAgo: "2 minggu lalu",
+    tanggal: "2026-08-03T10:05:00Z",
+    jumlahPetunjuk: 2,
+    selesai: true,
   },
 ];
 

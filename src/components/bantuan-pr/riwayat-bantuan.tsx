@@ -8,17 +8,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { riwayatBantuan } from "@/lib/mock/bantuan-pr";
 
 export function RiwayatBantuan() {
+  // Sidebar menampilkan yang terbaru saja; selengkapnya di halaman riwayat.
+  const terbaru = riwayatBantuan.slice(0, 4);
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle>Riwayat Bantuan</CardTitle>
+        <Button asChild variant="ghost" size="sm" className="text-primary">
+          <Link href="/bantuan-pr/riwayat">Lihat semua</Link>
+        </Button>
       </CardHeader>
       <CardContent className="p-0">
         <ul className="divide-y">
-          {riwayatBantuan.map((s) => (
+          {terbaru.map((s) => (
             <li key={s.id}>
               <Link
                 href={`/bantuan-pr/${s.id}`}
