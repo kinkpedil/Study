@@ -148,3 +148,32 @@ export const kategoriList: KategoriBuku[] = [
 export function getBuku(id: string): Buku | undefined {
   return daftarBuku.find((b) => b.id === id);
 }
+
+/** Teks yang bisa dicari dari sebuah buku (digabung & dinormalisasi). */
+function haystack(b: Buku): string {
+  return [
+    b.judul,
+    b.penulis,
+    b.penerbit,
+    b.mapel,
+    b.kategori,
+    b.jenjang,
+    `kelas ${b.kelas}`,
+    String(b.tahun),
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+/**
+ * Pencarian buku multi-kata: setiap kata pada query harus cocok di salah satu
+ * field (AND antar kata). Mengembalikan seluruh daftar bila query kosong.
+ */
+export function cariBuku(query: string, sumber: Buku[] = daftarBuku): Buku[] {
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return sumber;
+  return sumber.filter((b) => {
+    const teks = haystack(b);
+    return terms.every((t) => teks.includes(t));
+  });
+}

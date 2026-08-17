@@ -1,26 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { BukuCard } from "./buku-card";
-import { daftarBuku } from "@/lib/mock/perpustakaan";
+import { cariBuku, daftarBuku } from "@/lib/mock/perpustakaan";
 
-/** Daftar buku dengan pencarian dasar (judul/penulis/mapel). */
+/**
+ * Daftar buku dengan pencarian multi-kata & multi-field (judul, penulis,
+ * penerbit, mapel, kategori, jenjang, kelas, tahun).
+ */
 export function BukuGrid() {
   const [query, setQuery] = useState("");
 
-  const hasil = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return daftarBuku;
-    return daftarBuku.filter(
-      (b) =>
-        b.judul.toLowerCase().includes(q) ||
-        b.penulis.toLowerCase().includes(q) ||
-        b.mapel.toLowerCase().includes(q),
-    );
-  }, [query]);
+  const hasil = useMemo(() => cariBuku(query), [query]);
+  const sedangMencari = query.trim().length > 0;
 
   return (
     <div className="space-y-4">
@@ -29,11 +24,27 @@ export function BukuGrid() {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Cari buku berdasarkan judul, penulis, atau mapel…"
+          placeholder="Cari mis. “matematika smp” atau “kelas 8”…"
           aria-label="Cari buku"
-          className="pl-9"
+          className="pl-9 pr-9"
         />
+        {sedangMencari && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="Hapus pencarian"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:bg-accent"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
+
+      <p className="text-xs text-muted-foreground" aria-live="polite">
+        {sedangMencari
+          ? `${hasil.length} dari ${daftarBuku.length} buku cocok`
+          : `${daftarBuku.length} buku`}
+      </p>
 
       {hasil.length === 0 ? (
         <p className="rounded-xl border bg-card py-10 text-center text-sm text-muted-foreground">
