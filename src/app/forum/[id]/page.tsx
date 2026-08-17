@@ -81,7 +81,7 @@ export default async function ThreadPage({
           </CardContent>
         </Card>
 
-        <ReplyBox awal={replies} />
+        <ReplyBox awal={replies} threadId={thread.id} scope={thread.scope} />
       </div>
     </AppShell>
   );

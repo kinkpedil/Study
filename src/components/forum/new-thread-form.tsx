@@ -127,6 +127,13 @@ export function NewThreadForm() {
             />
           </div>
 
+          {scope === "umum" && (
+            <p className="rounded-lg bg-accent/40 px-3 py-2 text-xs text-muted-foreground">
+              Topik ini akan tampil di forum terbuka lintas jenjang dengan label{" "}
+              <strong>{profile.jenjang ?? "Guru"}</strong>.
+            </p>
+          )}
+
           <div className="flex items-center justify-between border-t pt-4">
             <Badge variant="secondary">Diskusi diawasi & dimoderasi</Badge>
             <Button type="submit" disabled={!valid}>

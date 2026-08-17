@@ -8,13 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRole } from "@/components/role/role-context";
-import type { ForumReply } from "@/lib/mock/forum";
+import type { ForumReply, ForumScope } from "@/lib/mock/forum";
 
 const roleLabel: Record<string, string> = {
   siswa: "Siswa",
   guru: "Guru",
   admin: "Admin",
 };
+
+const jenjangVariant = { SD: "sd", SMP: "smp", SMA: "sma" } as const;
 
 function initials(name: string) {
   return name
@@ -27,10 +29,25 @@ function initials(name: string) {
 }
 
 /** Daftar balasan + kotak balas (mock: balasan baru ditambahkan lokal). */
-export function ReplyBox({ awal }: { awal: ForumReply[] }) {
+export function ReplyBox({
+  awal,
+  threadId,
+  scope,
+}: {
+  awal: ForumReply[];
+  threadId: string;
+  scope: ForumScope;
+}) {
   const { profile } = useRole();
   const [balasan, setBalasan] = useState<ForumReply[]>(awal);
   const [draf, setDraf] = useState("");
+
+  // Di forum umum/sekolah, tandai jenjang penulis (lintas jenjang).
+  const tampilJenjang = scope !== "jenjang";
+  const jenjangSaya =
+    profile.role === "guru" || profile.role === "admin"
+      ? "Guru"
+      : profile.jenjang;
 
   function kirim(e: React.FormEvent) {
     e.preventDefault();
@@ -40,9 +57,10 @@ export function ReplyBox({ awal }: { awal: ForumReply[] }) {
       ...prev,
       {
         id: `local_${prev.length}`,
-        threadId: awal[0]?.threadId ?? "",
+        threadId,
         penulis: profile.name,
         penulisRole: profile.role,
+        penulisJenjang: tampilJenjang ? jenjangSaya : undefined,
         isi,
         timeAgo: "baru saja",
       },
@@ -70,6 +88,18 @@ export function ReplyBox({ awal }: { awal: ForumReply[] }) {
                 <Badge variant="secondary" className="text-[10px]">
                   {roleLabel[r.penulisRole]}
                 </Badge>
+                {tampilJenjang && r.penulisJenjang && (
+                  <Badge
+                    variant={
+                      r.penulisJenjang === "Guru"
+                        ? "outline"
+                        : jenjangVariant[r.penulisJenjang]
+                    }
+                    className="text-[10px]"
+                  >
+                    {r.penulisJenjang}
+                  </Badge>
+                )}
                 <span className="text-xs text-muted-foreground">
                   {r.timeAgo}
                 </span>

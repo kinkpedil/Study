@@ -155,6 +155,8 @@ export interface ForumReply {
   threadId: string;
   penulis: string;
   penulisRole: "siswa" | "guru" | "admin";
+  /** Jenjang penulis — ditampilkan di forum umum/sekolah (lintas jenjang). */
+  penulisJenjang?: Jenjang | "Guru";
   isi: string;
   timeAgo: string;
 }
@@ -192,6 +194,35 @@ export const forumReplies: Record<string, ForumReply[]> = {
       penulisRole: "siswa",
       isi: "Aku biasanya menulis ulang rumus sambil menyebutkan artinya. Lebih nempel daripada sekadar menghafal simbol.",
       timeAgo: "kemarin",
+    },
+  ],
+  th_8: [
+    {
+      id: "rp_4",
+      threadId: "th_8",
+      penulis: "Kenzie Alfaro",
+      penulisRole: "siswa",
+      penulisJenjang: "SD",
+      isi: "Aku suka tarik napas panjang beberapa kali sebelum mengerjakan soal. Jadi lebih tenang.",
+      timeAgo: "20 jam lalu",
+    },
+    {
+      id: "rp_5",
+      threadId: "th_8",
+      penulis: "Rangga Saputra",
+      penulisRole: "siswa",
+      penulisJenjang: "SMA",
+      isi: "Buatku, belajar bertahap dari jauh-jauh hari mengurangi cemas mendekati ujian.",
+      timeAgo: "18 jam lalu",
+    },
+    {
+      id: "rp_6",
+      threadId: "th_8",
+      penulis: "Bu Sari Melati",
+      penulisRole: "guru",
+      penulisJenjang: "Guru",
+      isi: "Bagus sekali, anak-anak. Ingat, cemas itu wajar. Fokus pada usaha, bukan hanya hasil.",
+      timeAgo: "12 jam lalu",
     },
   ],
 };
