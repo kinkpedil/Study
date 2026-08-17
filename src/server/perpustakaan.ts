@@ -3,7 +3,7 @@ import "server-only";
 import { and, or, eq, ilike, desc, sql, type SQL } from "drizzle-orm";
 
 import { db } from "@/db";
-import { libraryBooks, libraryCategories } from "@/db/schema";
+import { libraryBooks, libraryCategories, savedBooks } from "@/db/schema";
 
 export interface FilterBuku {
   q?: string;
@@ -97,4 +97,62 @@ export async function cariBuku(filter: FilterBuku): Promise<HasilCariBuku> {
   ]);
 
   return { items, total: totalRows[0]?.count ?? 0, limit, offset };
+}
+
+export interface BukuDetail {
+  id: string;
+  title: string;
+  author: string;
+  publisher: string | null;
+  jenjang: string;
+  kelas: string | null;
+  mapel: string;
+  kategori: string | null;
+  tahun: number | null;
+  deskripsi: string | null;
+  sumberUrl: string;
+  coverUrl: string | null;
+  tersimpan: boolean;
+}
+
+/**
+ * Detail satu buku + nama kategori, disertai status tersimpan untuk pengguna.
+ * Mengembalikan null bila buku tidak ada.
+ */
+export async function getDetailBuku(
+  id: string,
+  profileId: string,
+): Promise<BukuDetail | null> {
+  const [buku] = await db
+    .select({
+      id: libraryBooks.id,
+      title: libraryBooks.title,
+      author: libraryBooks.author,
+      publisher: libraryBooks.publisher,
+      jenjang: libraryBooks.jenjang,
+      kelas: libraryBooks.kelas,
+      mapel: libraryBooks.mapel,
+      kategori: libraryCategories.name,
+      tahun: libraryBooks.tahun,
+      deskripsi: libraryBooks.deskripsi,
+      sumberUrl: libraryBooks.sumberUrl,
+      coverUrl: libraryBooks.coverUrl,
+    })
+    .from(libraryBooks)
+    .leftJoin(
+      libraryCategories,
+      eq(libraryBooks.categoryId, libraryCategories.id),
+    )
+    .where(eq(libraryBooks.id, id))
+    .limit(1);
+
+  if (!buku) return null;
+
+  const saved = await db
+    .select({ id: savedBooks.id })
+    .from(savedBooks)
+    .where(and(eq(savedBooks.profileId, profileId), eq(savedBooks.bookId, id)))
+    .limit(1);
+
+  return { ...buku, tersimpan: saved.length > 0 };
 }
