@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -139,24 +139,4 @@ export async function submitLatihan(
   });
 
   return { attemptId, score, benar, totalPG, totalEsai };
-}
-
-/** Riwayat attempt milik pengguna (dipakai halaman Riwayat). */
-export async function riwayatAttempts(profileId: string, limit = 20) {
-  return db
-    .select({
-      id: attempts.id,
-      exerciseSetId: attempts.exerciseSetId,
-      judul: exerciseSets.judul,
-      mapel: exerciseSets.mapel,
-      score: attempts.score,
-      benar: attempts.benar,
-      total: attempts.total,
-      finishedAt: attempts.finishedAt,
-    })
-    .from(attempts)
-    .innerJoin(exerciseSets, eq(attempts.exerciseSetId, exerciseSets.id))
-    .where(and(eq(attempts.profileId, profileId)))
-    .orderBy(sql`${attempts.startedAt} desc`)
-    .limit(limit);
 }
