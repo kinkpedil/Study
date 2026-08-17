@@ -32,7 +32,7 @@ export const libraryCategories = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (t) => [
+  () => [
     pgPolicy("library_categories_select", {
       as: "permissive",
       for: "select",
