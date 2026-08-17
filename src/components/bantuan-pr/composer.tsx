@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { ImagePlus, Lightbulb, Send, X } from "lucide-react";
+import { useState } from "react";
+import { Lightbulb, Send } from "lucide-react";
 
 import {
   Card,
@@ -17,14 +17,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useRole } from "@/components/role/role-context";
 import { mapelBantuan, contohPertanyaan } from "@/lib/mock/bantuan-pr";
+import { PhotoUpload } from "./photo-upload";
 
 export function Composer() {
   const { profile } = useRole();
   const [pertanyaan, setPertanyaan] = useState("");
   const [mapel, setMapel] = useState(mapelBantuan[0]);
-  const [fotoNama, setFotoNama] = useState<string | null>(null);
+  const [foto, setFoto] = useState<File | null>(null);
   const [terkirim, setTerkirim] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,9 +46,9 @@ export function Composer() {
               {mapel}
             </Badge>
             <p className="text-sm">{pertanyaan}</p>
-            {fotoNama && (
+            {foto && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Lampiran: {fotoNama}
+                Lampiran: {foto.name}
               </p>
             )}
           </div>
@@ -63,7 +63,7 @@ export function Composer() {
             onClick={() => {
               setTerkirim(false);
               setPertanyaan("");
-              setFotoNama(null);
+              setFoto(null);
             }}
           >
             Tanya lagi
@@ -112,39 +112,8 @@ export function Composer() {
             />
           </div>
 
-          {/* Lampiran foto (UI; unggah asli menyusul di backend Storage). */}
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) =>
-                setFotoNama(e.target.files?.[0]?.name ?? null)
-              }
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileRef.current?.click()}
-            >
-              <ImagePlus className="h-4 w-4" />
-              Unggah foto soal
-            </Button>
-            {fotoNama && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs">
-                {fotoNama}
-                <button
-                  type="button"
-                  aria-label="Hapus lampiran"
-                  onClick={() => setFotoNama(null)}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-          </div>
+          {/* Lampiran foto soal dengan pratinjau & hapus. */}
+          <PhotoUpload value={foto} onChange={setFoto} />
 
           {/* Contoh pertanyaan */}
           <div className="flex flex-wrap gap-2">
