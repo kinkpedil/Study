@@ -16,6 +16,9 @@ export interface TugasSiswa {
   status: TugasStatus;
   tipe: TugasTipe;
   nilai?: number;
+  deskripsi?: string;
+  /** Umpan balik guru (jika sudah dinilai). */
+  komentar?: string;
 }
 
 export const tugasSiswa: TugasSiswa[] = [
@@ -27,6 +30,8 @@ export const tugasSiswa: TugasSiswa[] = [
     tenggat: "2026-08-18T23:59:00Z",
     status: "belum",
     tipe: "teks",
+    deskripsi:
+      "Kerjakan 10 soal persamaan linear satu variabel. Tuliskan langkah pengerjaannya, bukan hanya jawaban akhir.",
   },
   {
     id: "tg_2",
@@ -55,6 +60,7 @@ export const tugasSiswa: TugasSiswa[] = [
     status: "dinilai",
     tipe: "teks",
     nilai: 90,
+    komentar: "Kerja bagus! Langkah pengerjaan sudah jelas. Pertahankan.",
   },
   {
     id: "tg_5",
@@ -157,4 +163,12 @@ export function formatTanggal(iso: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+export function getTugasSiswa(id: string): TugasSiswa | undefined {
+  return tugasSiswa.find((t) => t.id === id);
+}
+
+export function getTugasGuru(id: string): TugasGuru | undefined {
+  return tugasGuru.find((t) => t.id === id);
 }
