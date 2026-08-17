@@ -8,3 +8,4 @@ export * from "./profiles";
 export * from "./notifications";
 export * from "./progress";
 export * from "./latihan";
+export * from "./bantuan-pr";

@@ -20,3 +20,18 @@ export const kesulitanEnum = pgEnum("kesulitan", ["mudah", "sedang", "sulit"]);
 
 /** Tipe soal dalam sebuah latihan. */
 export const soalTipeEnum = pgEnum("soal_tipe", ["pilihan_ganda", "esai"]);
+
+/** Pengirim pesan dalam sesi Bantuan PR. */
+export const hwSenderEnum = pgEnum("hw_sender", ["siswa", "ai"]);
+
+/** Jenis pesan dalam sesi Bantuan PR. */
+export const hwMsgTipeEnum = pgEnum("hw_msg_tipe", [
+  "pertanyaan",
+  "petunjuk",
+  "langkah",
+  "jawaban",
+  "klarifikasi",
+]);
+
+/** Status sesi Bantuan PR. */
+export const hwStatusEnum = pgEnum("hw_status", ["berlangsung", "selesai"]);
