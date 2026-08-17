@@ -5,11 +5,13 @@ import {
   integer,
   timestamp,
   index,
+  unique,
   pgPolicy,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 import { jenjangEnum } from "./enums";
+import { profiles } from "./profiles";
 
 /**
  * Skema Perpustakaan Digital: kategori & buku. Katalog bersifat publik untuk
@@ -79,7 +81,42 @@ export const libraryBooks = pgTable(
   ],
 );
 
+/* ------------------------------ saved_books ------------------------------ */
+
+/**
+ * Koleksi buku tersimpan milik pengguna. RLS owner-only: pengguna hanya bisa
+ * melihat/menambah/menghapus koleksinya sendiri.
+ */
+export const savedBooks = pgTable(
+  "saved_books",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    profileId: uuid("profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => libraryBooks.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("saved_books_profile_book_uq").on(t.profileId, t.bookId),
+    index("saved_books_profile_idx").on(t.profileId, t.createdAt),
+    pgPolicy("saved_books_owner", {
+      as: "permissive",
+      for: "all",
+      to: "authenticated",
+      using: sql`${t.profileId} = (select auth.uid())`,
+      withCheck: sql`${t.profileId} = (select auth.uid())`,
+    }),
+  ],
+);
+
 export type LibraryCategory = typeof libraryCategories.$inferSelect;
 export type NewLibraryCategory = typeof libraryCategories.$inferInsert;
 export type LibraryBook = typeof libraryBooks.$inferSelect;
 export type NewLibraryBook = typeof libraryBooks.$inferInsert;
+export type SavedBook = typeof savedBooks.$inferSelect;
+export type NewSavedBook = typeof savedBooks.$inferInsert;
