@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useRole } from "@/components/role/role-context";
 import {
   forumThreads,
+  kategoriForum,
   scopeLabel,
   scopeDeskripsi,
   type ForumScope,
@@ -17,27 +18,39 @@ import {
 import { ThreadCard } from "./thread-card";
 
 const scopes: ForumScope[] = ["jenjang", "umum", "sekolah"];
+type Urut = "terbaru" | "populer";
 
 export function ForumView() {
   const { profile } = useRole();
   const [scope, setScope] = useState<ForumScope>(
     profile.jenjang ? "jenjang" : "umum",
   );
+  const [kategori, setKategori] = useState("Semua");
+  const [urut, setUrut] = useState<Urut>("terbaru");
 
   const threads = useMemo(() => {
     const list = forumThreads.filter((t) => {
       if (t.scope !== scope) return false;
       // Diskusi antarjenjang: siswa hanya melihat jenjangnya sendiri.
-      if (scope === "jenjang" && profile.jenjang) {
-        return t.jenjang === profile.jenjang;
-      }
+      if (scope === "jenjang" && profile.jenjang && t.jenjang !== profile.jenjang)
+        return false;
+      if (kategori !== "Semua" && t.kategori !== kategori) return false;
       return true;
     });
-    // Yang disematkan tampil dulu.
-    return [...list].sort(
-      (a, b) => Number(b.disematkan ?? false) - Number(a.disematkan ?? false),
-    );
-  }, [scope, profile.jenjang]);
+
+    return [...list].sort((a, b) => {
+      // Yang disematkan selalu di atas.
+      const pin = Number(b.disematkan ?? false) - Number(a.disematkan ?? false);
+      if (pin !== 0) return pin;
+      if (urut === "populer") return b.balasan - a.balasan;
+      return 0; // urutan mock dianggap terbaru-dulu
+    });
+  }, [scope, profile.jenjang, kategori, urut]);
+
+  function pilihScope(s: ForumScope) {
+    setScope(s);
+    setKategori("Semua");
+  }
 
   return (
     <div className="space-y-4">
@@ -50,7 +63,7 @@ export function ForumView() {
               key={s}
               type="button"
               disabled={disabled}
-              onClick={() => setScope(s)}
+              onClick={() => pilihScope(s)}
               className={cn(
                 "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40",
                 scope === s
@@ -65,7 +78,58 @@ export function ForumView() {
         })}
       </div>
 
-      <p className="text-sm text-muted-foreground">{scopeDeskripsi[scope]}</p>
+      {/* Banner aturan antarjenjang */}
+      {scope === "jenjang" && profile.jenjang && (
+        <div className="flex items-start gap-3 rounded-xl border bg-accent/30 p-3">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <p className="text-sm text-muted-foreground">
+            Kamu berada di ruang <strong>{profile.jenjang}</strong>. Diskusi di
+            sini hanya terlihat oleh siswa {profile.jenjang} — siswa jenjang lain
+            punya ruangnya sendiri.
+          </p>
+        </div>
+      )}
+      {scope !== "jenjang" && (
+        <p className="text-sm text-muted-foreground">{scopeDeskripsi[scope]}</p>
+      )}
+
+      {/* Filter kategori + urutan */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-1.5">
+          {["Semua", ...kategoriForum].map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKategori(k)}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                kategori === k
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-input text-muted-foreground hover:bg-accent",
+              )}
+            >
+              {k}
+            </button>
+          ))}
+        </div>
+        <div className="flex shrink-0 items-center gap-1 rounded-lg border bg-background p-1 text-xs">
+          {(["terbaru", "populer"] as Urut[]).map((u) => (
+            <button
+              key={u}
+              type="button"
+              onClick={() => setUrut(u)}
+              className={cn(
+                "rounded-md px-2.5 py-1 font-medium capitalize transition-colors",
+                urut === u
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent",
+              )}
+            >
+              {u}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="flex justify-end">
         <Button asChild>
