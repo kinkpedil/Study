@@ -14,6 +14,8 @@ export interface Percakapan {
   petunjuk: string[];
   /** Langkah penyelesaian akhir (diungkap setelah semua petunjuk). */
   langkahFinal: string[];
+  /** Jawaban akhir ringkas — hanya ditampilkan bila siswa memintanya. */
+  jawabanAkhir: string;
 }
 
 const data: Record<string, Percakapan> = {
@@ -34,6 +36,7 @@ const data: Record<string, Percakapan> = {
       "Coret faktor (x + 2) yang sama di atas dan bawah.",
       "Hasil: x − 2, dengan syarat x ≠ −2.",
     ],
+    jawabanAkhir: "(x² − 4)/(x + 2) = x − 2, dengan syarat x ≠ −2.",
   },
   hs_2: {
     id: "hs_2",
@@ -52,6 +55,8 @@ const data: Record<string, Percakapan> = {
       "Komponen w sin θ menarik benda turun; gesek f menahannya.",
       "Benda meluncur ketika w sin θ > f (gaya gesek statis maksimum).",
     ],
+    jawabanAkhir:
+      "Benda meluncur turun karena komponen berat sejajar bidang (w sin θ) melebihi gaya gesek maksimum.",
   },
 };
 
@@ -69,6 +74,8 @@ const fallback: Percakapan = {
   langkahFinal: [
     "Langkah penyelesaian lengkap tampil setelah kamu mencoba semua petunjuk.",
   ],
+  jawabanAkhir:
+    "Jawaban akhir hanya ditampilkan jika kamu memintanya — coba dulu dengan petunjuk di atas, ya.",
 };
 
 export function getPercakapan(id: string): Percakapan {

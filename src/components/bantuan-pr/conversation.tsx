@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Lightbulb, ListChecks, Send, Sparkles } from "lucide-react";
+import {
+  CheckCircle2,
+  Lightbulb,
+  ListChecks,
+  Send,
+  Sparkles,
+} from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +27,10 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
   const [tampilFinal, setTampilFinal] = useState(false);
   const [tindakLanjut, setTindakLanjut] = useState<FollowUp[]>([]);
   const [draf, setDraf] = useState("");
+  // Alur minta jawaban akhir: idle → konfirmasi → tampil.
+  const [jawabanState, setJawabanState] = useState<
+    "idle" | "konfirmasi" | "tampil"
+  >("idle");
 
   const totalPetunjuk = sesi.petunjuk.length;
   const semuaTerungkap = terungkap >= totalPetunjuk;
@@ -87,6 +97,46 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
         </div>
       )}
 
+      {/* Jawaban akhir (hanya bila diminta) */}
+      {jawabanState === "tampil" && (
+        <div className="flex justify-start">
+          <div className="max-w-[85%] space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Jawaban akhir
+            </div>
+            <div className="rounded-2xl rounded-tl-sm border-2 border-primary/40 bg-primary/5 px-4 py-3 text-sm font-medium">
+              {sesi.jawabanAkhir}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Konfirmasi minta jawaban akhir */}
+      {jawabanState === "konfirmasi" && (
+        <div className="rounded-xl border border-warning/40 bg-warning/10 p-4">
+          <p className="text-sm font-medium">
+            Yakin mau langsung lihat jawaban akhir?
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Kamu belajar lebih baik dengan mencoba petunjuk dulu. Jawaban akhir
+            tetap tersedia kalau kamu benar-benar butuh.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setJawabanState("idle")}
+            >
+              Coba lagi dulu
+            </Button>
+            <Button size="sm" onClick={() => setJawabanState("tampil")}>
+              Ya, tampilkan jawaban
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Kontrol pengungkapan */}
       <div className="flex flex-wrap gap-2">
         {!semuaTerungkap && (
@@ -102,6 +152,16 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
           <Button variant="outline" onClick={() => setTampilFinal(true)}>
             <ListChecks className="h-4 w-4" />
             Tampilkan langkah penyelesaian
+          </Button>
+        )}
+        {jawabanState === "idle" && (
+          <Button
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => setJawabanState("konfirmasi")}
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Minta jawaban akhir
           </Button>
         )}
       </div>
