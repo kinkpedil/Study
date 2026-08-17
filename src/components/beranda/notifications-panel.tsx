@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { notifications, type NotifKind } from "@/lib/mock/beranda";
@@ -25,10 +26,19 @@ const kindMeta: Record<NotifKind, { icon: LucideIcon; className: string }> = {
 };
 
 export function NotificationsPanel() {
+  const unread = notifications.filter((n) => !n.read).length;
+
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
-        <CardTitle>Notifikasi &amp; Pengumuman</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle>Notifikasi &amp; Pengumuman</CardTitle>
+          {unread > 0 && (
+            <Badge variant="destructive" aria-label={`${unread} belum dibaca`}>
+              {unread} baru
+            </Badge>
+          )}
+        </div>
         <Button asChild variant="ghost" size="sm" className="text-primary">
           <Link href="/notifikasi">Lihat semua</Link>
         </Button>
@@ -41,8 +51,19 @@ export function NotificationsPanel() {
               <li key={n.id}>
                 <Link
                   href={n.href}
-                  className="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-accent/40"
+                  className={cn(
+                    "relative flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:bg-accent/40",
+                    !n.read && "bg-primary/[0.04]",
+                  )}
                 >
+                  {/* Penanda garis kiri untuk item yang belum dibaca */}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute left-0 h-9 w-1 rounded-r-full",
+                      !n.read ? "bg-primary" : "bg-transparent",
+                    )}
+                  />
                   <span
                     className={cn(
                       "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
@@ -53,7 +74,12 @@ export function NotificationsPanel() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-medium">
+                      <p
+                        className={cn(
+                          "truncate text-sm",
+                          n.read ? "font-medium" : "font-semibold",
+                        )}
+                      >
                         {n.title}
                       </p>
                       {!n.read && (
