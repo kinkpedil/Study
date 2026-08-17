@@ -140,6 +140,17 @@ export function sisaTenggat(
   return { teks: `${hari} hari lagi`, mendesak: hari <= 3, lewat: false };
 }
 
+export const mapelTugas = [
+  "Matematika",
+  "IPA",
+  "Bahasa Indonesia",
+  "Bahasa Inggris",
+  "IPS",
+  "PPKn",
+];
+
+export const kelasTugas = ["7A", "7B", "8A", "8B", "9A", "9B"];
+
 export function formatTanggal(iso: string): string {
   return new Date(iso).toLocaleDateString("id-ID", {
     day: "numeric",
