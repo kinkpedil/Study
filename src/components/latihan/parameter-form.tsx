@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
 import {
@@ -29,6 +30,7 @@ import {
 } from "@/lib/mock/latihan";
 
 export function ParameterForm() {
+  const router = useRouter();
   const [jenjang, setJenjang] = useState<Jenjang>(defaultParams.jenjang);
   const [kelas, setKelas] = useState(defaultParams.kelas);
   const [mapel, setMapel] = useState(defaultParams.mapel);
@@ -64,15 +66,17 @@ export function ParameterForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     // Backend/AI belum tersedia — parameter ini nanti dikirim ke API generator.
-    console.log("Buat latihan dengan parameter:", {
+    // Untuk sekarang, arahkan ke halaman kerjakan soal dengan set contoh.
+    const params = new URLSearchParams({
       jenjang,
       kelas,
       mapel,
       topik,
       kesulitan,
       tipe,
-      jumlah,
+      jumlah: String(jumlah),
     });
+    router.push(`/latihan/kerjakan?${params.toString()}`);
   }
 
   return (
