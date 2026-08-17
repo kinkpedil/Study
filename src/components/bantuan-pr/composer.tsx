@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Lightbulb, Send } from "lucide-react";
 
 import {
@@ -17,6 +18,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useRole } from "@/components/role/role-context";
 import { mapelBantuan, contohPertanyaan } from "@/lib/mock/bantuan-pr";
+import {
+  saveLocalSession,
+  newSessionId,
+} from "@/lib/storage/bantuan-pr";
 import { PhotoUpload } from "./photo-upload";
 
 export function Composer() {
@@ -25,11 +30,27 @@ export function Composer() {
   const [mapel, setMapel] = useState(mapelBantuan[0]);
   const [foto, setFoto] = useState<File | null>(null);
   const [terkirim, setTerkirim] = useState(false);
+  const [sesiId, setSesiId] = useState<string | null>(null);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (pertanyaan.trim().length === 0) return;
-    // Backend AI belum tersedia — tampilkan konfirmasi terkirim (mock).
+    const teks = pertanyaan.trim();
+    if (teks.length === 0) return;
+    // Backend AI belum tersedia — simpan sesi ke localStorage agar bisa
+    // dibuka & dilanjutkan dari riwayat, lalu tampilkan konfirmasi.
+    const id = newSessionId();
+    saveLocalSession({
+      id,
+      judul: teks.length > 60 ? `${teks.slice(0, 57)}…` : teks,
+      mapel,
+      jenjang: profile.jenjang ?? "SMP",
+      pertanyaan: teks,
+      cuplikan: teks,
+      tanggal: new Date().toISOString(),
+      jumlahPetunjuk: 3,
+      selesai: false,
+    });
+    setSesiId(id);
     setTerkirim(true);
   }
 
@@ -58,16 +79,24 @@ export function Composer() {
             {profile.jenjang ?? "kamu"}. (Petunjuk akan tampil di sini setelah
             layanan AI aktif.)
           </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setTerkirim(false);
-              setPertanyaan("");
-              setFoto(null);
-            }}
-          >
-            Tanya lagi
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {sesiId && (
+              <Button asChild>
+                <Link href={`/bantuan-pr/${sesiId}`}>Buka percakapan</Link>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setTerkirim(false);
+                setPertanyaan("");
+                setFoto(null);
+                setSesiId(null);
+              }}
+            >
+              Tanya lagi
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );

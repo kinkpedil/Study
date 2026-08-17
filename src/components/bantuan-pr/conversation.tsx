@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Lightbulb,
@@ -16,12 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { Percakapan } from "@/lib/mock/percakapan";
 import type { Jenjang } from "@/lib/mock/beranda";
+import {
+  loadProgress,
+  saveProgress,
+  loadLocalSession,
+  type FollowUp,
+} from "@/lib/storage/bantuan-pr";
 import { JenjangStyleBar } from "./jenjang-style-bar";
-
-interface FollowUp {
-  id: number;
-  tanya: string;
-}
 
 export function Conversation({ sesi }: { sesi: Percakapan }) {
   // Berapa banyak petunjuk yang sudah diungkap (mulai dari 1).
@@ -36,6 +37,46 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
   const [jenjang, setJenjang] = useState<Jenjang>(
     (sesi.jenjang as Jenjang) ?? "SMP",
   );
+  // Pertanyaan bisa berasal dari sesi lokal (buatan pengguna) bila ada.
+  const [pertanyaan, setPertanyaan] = useState(sesi.pertanyaan);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Muat pertanyaan lokal + progres tersimpan saat mount.
+  useEffect(() => {
+    const lokal = loadLocalSession(sesi.id);
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (lokal) setPertanyaan(lokal.pertanyaan);
+    const p = loadProgress(sesi.id);
+    if (p) {
+      setTerungkap(p.terungkap);
+      setTampilFinal(p.tampilFinal);
+      setJawabanState(p.jawabanState);
+      setJenjang(p.jenjang);
+      setTindakLanjut(p.tindakLanjut);
+    }
+    setHydrated(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [sesi.id]);
+
+  // Simpan progres tiap kali berubah (setelah hidrasi).
+  useEffect(() => {
+    if (!hydrated) return;
+    saveProgress(sesi.id, {
+      terungkap,
+      tampilFinal,
+      jawabanState,
+      jenjang,
+      tindakLanjut,
+    });
+  }, [
+    hydrated,
+    sesi.id,
+    terungkap,
+    tampilFinal,
+    jawabanState,
+    jenjang,
+    tindakLanjut,
+  ]);
 
   const totalPetunjuk = sesi.petunjuk.length;
   const semuaTerungkap = terungkap >= totalPetunjuk;
@@ -57,7 +98,7 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
       {/* Pertanyaan siswa */}
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-4 py-3 text-sm text-primary-foreground">
-          {sesi.pertanyaan}
+          {pertanyaan}
         </div>
       </div>
 

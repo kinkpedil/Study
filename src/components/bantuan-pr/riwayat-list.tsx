@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { MessageCircleQuestion, Search } from "lucide-react";
 
@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { riwayatBantuan } from "@/lib/mock/bantuan-pr";
+import { riwayatBantuan, type HelpSession } from "@/lib/mock/bantuan-pr";
+import { loadLocalSessions } from "@/lib/storage/bantuan-pr";
 
 function formatTanggal(iso: string) {
   return new Date(iso).toLocaleDateString("id-ID", {
@@ -18,19 +19,41 @@ function formatTanggal(iso: string) {
   });
 }
 
-const mapelList = [
-  "Semua",
-  ...Array.from(new Set(riwayatBantuan.map((s) => s.mapel))),
-];
-
 /** Daftar lengkap riwayat sesi Bantuan PR dengan pencarian & filter mapel. */
 export function RiwayatList() {
   const [query, setQuery] = useState("");
   const [mapel, setMapel] = useState("Semua");
+  const [lokal, setLokal] = useState<HelpSession[]>([]);
+
+  // Gabungkan sesi lokal (buatan pengguna) dengan contoh saat mount.
+  useEffect(() => {
+    const dariLokal: HelpSession[] = loadLocalSessions().map((s) => ({
+      id: s.id,
+      judul: s.judul,
+      mapel: s.mapel,
+      cuplikan: s.cuplikan,
+      timeAgo: "baru saja",
+      tanggal: s.tanggal,
+      jumlahPetunjuk: s.jumlahPetunjuk,
+      selesai: s.selesai,
+    }));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLokal(dariLokal);
+  }, []);
+
+  const semua = useMemo(() => {
+    const ids = new Set(lokal.map((s) => s.id));
+    return [...lokal, ...riwayatBantuan.filter((s) => !ids.has(s.id))];
+  }, [lokal]);
+
+  const mapelList = useMemo(
+    () => ["Semua", ...Array.from(new Set(semua.map((s) => s.mapel)))],
+    [semua],
+  );
 
   const hasil = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return riwayatBantuan
+    return semua
       .filter((s) => (mapel === "Semua" ? true : s.mapel === mapel))
       .filter(
         (s) =>
@@ -39,7 +62,7 @@ export function RiwayatList() {
           s.cuplikan.toLowerCase().includes(q),
       )
       .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-  }, [query, mapel]);
+  }, [query, mapel, semua]);
 
   return (
     <div className="space-y-4">
