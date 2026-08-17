@@ -15,3 +15,19 @@ export const generateLatihanSchema = z.object({
 });
 
 export type GenerateLatihanInput = z.infer<typeof generateLatihanSchema>;
+
+/** Validasi pengiriman jawaban latihan. */
+export const submitLatihanSchema = z.object({
+  exerciseSetId: z.string().uuid(),
+  jawaban: z
+    .array(
+      z.object({
+        questionId: z.string().uuid(),
+        jawaban: z.string().max(5000),
+      }),
+    )
+    .min(1)
+    .max(50),
+});
+
+export type SubmitLatihanInput = z.infer<typeof submitLatihanSchema>;
