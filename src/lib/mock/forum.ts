@@ -117,6 +117,64 @@ export const forumThreads: ForumThread[] = [
   },
 ];
 
+export interface ForumReply {
+  id: string;
+  threadId: string;
+  penulis: string;
+  penulisRole: "siswa" | "guru" | "admin";
+  isi: string;
+  timeAgo: string;
+}
+
+/** Isi lengkap thread (fallback ke cuplikan bila tak ada). */
+export const threadBodies: Record<string, string> = {
+  th_1: "Halo teman-teman! Aku masih sering keliru saat memindahkan ruas pada persamaan linear, misalnya 2x + 3 = 11. Kadang tanda plus-minusnya kebalik. Ada cara mengingat langkahnya biar tidak salah?",
+  th_2: "Aku merasa hafalan rumus cepat hilang. Adakah trik seperti jembatan keledai atau cara memahami asal rumusnya supaya lebih nempel?",
+};
+
+export const forumReplies: Record<string, ForumReply[]> = {
+  th_1: [
+    {
+      id: "rp_1",
+      threadId: "th_1",
+      penulis: "Budi Hartono",
+      penulisRole: "siswa",
+      isi: "Ingat aja: kalau pindah ruas, tandanya berubah. +3 di kiri jadi −3 di kanan. Jadi 2x = 11 − 3 = 8, lalu x = 4.",
+      timeAgo: "1 jam lalu",
+    },
+    {
+      id: "rp_2",
+      threadId: "th_1",
+      penulis: "Pak Bagus Santoso",
+      penulisRole: "guru",
+      isi: "Betul, Budi. Kuncinya: operasi yang sama dilakukan di kedua ruas. Coba bayangkan timbangan yang harus tetap seimbang.",
+      timeAgo: "40 menit lalu",
+    },
+  ],
+  th_2: [
+    {
+      id: "rp_3",
+      threadId: "th_2",
+      penulis: "Citra Dewi",
+      penulisRole: "siswa",
+      isi: "Aku biasanya menulis ulang rumus sambil menyebutkan artinya. Lebih nempel daripada sekadar menghafal simbol.",
+      timeAgo: "kemarin",
+    },
+  ],
+};
+
+export function getThread(id: string): ForumThread | undefined {
+  return forumThreads.find((t) => t.id === id);
+}
+
+export function getThreadBody(t: ForumThread): string {
+  return threadBodies[t.id] ?? t.cuplikan;
+}
+
+export function getReplies(threadId: string): ForumReply[] {
+  return forumReplies[threadId] ?? [];
+}
+
 export const scopeLabel: Record<ForumScope, string> = {
   jenjang: "Jenjang Saya",
   umum: "Forum Umum",
