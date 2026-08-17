@@ -44,9 +44,19 @@ export function SchoolForumView() {
 
       {/* Pengumuman */}
       <section aria-label="Pengumuman" className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Megaphone className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold">Pengumuman</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Megaphone className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">Pengumuman</h2>
+          </div>
+          {profile.role === "admin" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href="/forum/pengumuman/baru">
+                <PlusCircle className="h-4 w-4" />
+                Buat Pengumuman
+              </Link>
+            </Button>
+          )}
         </div>
         <div className="space-y-2">
           {pengumumanSekolah.map((p) => (
