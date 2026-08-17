@@ -12,10 +12,10 @@ import {
   forumThreads,
   kategoriForum,
   scopeLabel,
-  scopeDeskripsi,
   type ForumScope,
 } from "@/lib/mock/forum";
 import { ThreadCard } from "./thread-card";
+import { SchoolForumView } from "./school-forum-view";
 
 const scopes: ForumScope[] = ["jenjang", "umum", "sekolah"];
 type Urut = "terbaru" | "populer";
@@ -99,10 +99,11 @@ export function ForumView() {
           </p>
         </div>
       )}
-      {scope === "sekolah" && (
-        <p className="text-sm text-muted-foreground">{scopeDeskripsi[scope]}</p>
-      )}
+      {/* Forum sekolah punya tampilan tersendiri (pengumuman, pengaduan). */}
+      {scope === "sekolah" && <SchoolForumView />}
 
+      {scope !== "sekolah" && (
+        <>
       {/* Filter kategori + urutan */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
@@ -161,6 +162,8 @@ export function ForumView() {
           )}
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 }

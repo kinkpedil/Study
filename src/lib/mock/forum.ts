@@ -239,6 +239,74 @@ export function getReplies(threadId: string): ForumReply[] {
   return forumReplies[threadId] ?? [];
 }
 
+export interface Pengumuman {
+  id: string;
+  judul: string;
+  isi: string;
+  penulis: string;
+  timeAgo: string;
+}
+
+export const pengumumanSekolah: Pengumuman[] = [
+  {
+    id: "pg_1",
+    judul: "Ujian Tengah Semester dimulai 25 Agustus 2026",
+    isi: "Seluruh siswa diharapkan mempersiapkan diri. Jadwal lengkap dibagikan wali kelas masing-masing.",
+    penulis: "Ibu Rina Wijaya",
+    timeAgo: "5 jam lalu",
+  },
+  {
+    id: "pg_2",
+    judul: "Perpustakaan buka lebih lama selama pekan ujian",
+    isi: "Mulai 20 Agustus, perpustakaan buka hingga pukul 17.00 untuk mendukung belajar.",
+    penulis: "Ibu Rina Wijaya",
+    timeAgo: "2 hari lalu",
+  },
+];
+
+export type PengaduanVisibility = "privat" | "publik";
+export type PengaduanStatus = "baru" | "diproses" | "selesai";
+
+export interface Pengaduan {
+  id: string;
+  judul: string;
+  ringkas: string;
+  visibility: PengaduanVisibility;
+  status: PengaduanStatus;
+  pelapor: string;
+  timeAgo: string;
+}
+
+export const pengaduanSekolah: Pengaduan[] = [
+  {
+    id: "pd_1",
+    judul: "AC di kelas 8B mati",
+    ringkas: "Sudah dua hari AC tidak menyala, kelas terasa panas saat siang.",
+    visibility: "publik",
+    status: "diproses",
+    pelapor: "Aisyah Putri",
+    timeAgo: "kemarin",
+  },
+  {
+    id: "pd_2",
+    judul: "Masalah pribadi dengan teman sekelas",
+    ringkas: "Butuh bantuan guru BK untuk menyelesaikan perselisihan.",
+    visibility: "privat",
+    status: "baru",
+    pelapor: "Anonim",
+    timeAgo: "3 jam lalu",
+  },
+  {
+    id: "pd_3",
+    judul: "Kran wastafel bocor di lantai 2",
+    ringkas: "Air terus menetes dan membuat lantai licin.",
+    visibility: "publik",
+    status: "selesai",
+    pelapor: "Dimas Prasetyo",
+    timeAgo: "1 minggu lalu",
+  },
+];
+
 export const scopeLabel: Record<ForumScope, string> = {
   jenjang: "Jenjang Saya",
   umum: "Forum Umum",
