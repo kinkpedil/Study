@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { Percakapan } from "@/lib/mock/percakapan";
+import type { Jenjang } from "@/lib/mock/beranda";
+import { JenjangStyleBar } from "./jenjang-style-bar";
 
 interface FollowUp {
   id: number;
@@ -31,6 +33,9 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
   const [jawabanState, setJawabanState] = useState<
     "idle" | "konfirmasi" | "tampil"
   >("idle");
+  const [jenjang, setJenjang] = useState<Jenjang>(
+    (sesi.jenjang as Jenjang) ?? "SMP",
+  );
 
   const totalPetunjuk = sesi.petunjuk.length;
   const semuaTerungkap = terungkap >= totalPetunjuk;
@@ -46,6 +51,9 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
 
   return (
     <div className="space-y-4">
+      {/* Label jenjang & gaya penjelasan */}
+      <JenjangStyleBar jenjang={jenjang} onChange={setJenjang} />
+
       {/* Pertanyaan siswa */}
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-4 py-3 text-sm text-primary-foreground">
@@ -179,7 +187,7 @@ export function Conversation({ sesi }: { sesi: Percakapan }) {
             <div className="flex items-center justify-between">
               <Badge variant="secondary" className="gap-1">
                 <Sparkles className="h-3 w-3" />
-                Bahasa sesuai jenjang {sesi.jenjang}
+                Bahasa sesuai jenjang {jenjang}
               </Badge>
               <Button type="submit" size="sm" disabled={draf.trim().length === 0}>
                 <Send className="h-4 w-4" />
