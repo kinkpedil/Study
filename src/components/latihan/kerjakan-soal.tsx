@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Check, ChevronLeft, ChevronRight, Save } from "lucide-react";
 
 import {
@@ -91,8 +92,8 @@ export function KerjakanSoal({
             <Button variant="outline" onClick={() => setSelesai(false)}>
               Periksa kembali
             </Button>
-            <Button disabled title="Tersedia setelah penilaian aktif">
-              Lihat kunci &amp; pembahasan
+            <Button asChild>
+              <Link href="/latihan/pembahasan">Lihat kunci &amp; pembahasan</Link>
             </Button>
           </div>
         </CardContent>

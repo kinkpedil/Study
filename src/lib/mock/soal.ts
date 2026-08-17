@@ -113,3 +113,41 @@ export const contohLatihan: LatihanSet = {
 export function jawabanStorageKey(latihanId: string) {
   return `sekolah-cerdas:latihan:${latihanId}:jawaban`;
 }
+
+export interface HasilPenilaian {
+  benar: number;
+  /** Jumlah soal pilihan ganda (yang bisa dinilai otomatis). */
+  totalPG: number;
+  /** Jumlah soal esai (butuh tinjauan manual/AI). */
+  totalEsai: number;
+  esaiTerisi: number;
+  /** Nilai 0–100 dari porsi pilihan ganda. */
+  nilai: number;
+}
+
+/**
+ * Menilai jawaban secara lokal (mock). Hanya pilihan ganda yang dinilai
+ * otomatis; esai ditandai untuk tinjauan. Nanti diganti penilaian server/AI.
+ */
+export function nilaiLatihan(
+  latihan: LatihanSet,
+  jawaban: Record<string, string>,
+): HasilPenilaian {
+  let benar = 0;
+  let totalPG = 0;
+  let totalEsai = 0;
+  let esaiTerisi = 0;
+
+  for (const s of latihan.soal) {
+    if (s.tipe === "pilihan_ganda") {
+      totalPG += 1;
+      if ((jawaban[s.id] ?? "") === s.kunci) benar += 1;
+    } else {
+      totalEsai += 1;
+      if ((jawaban[s.id] ?? "").trim() !== "") esaiTerisi += 1;
+    }
+  }
+
+  const nilai = totalPG === 0 ? 0 : Math.round((benar / totalPG) * 100);
+  return { benar, totalPG, totalEsai, esaiTerisi, nilai };
+}
