@@ -17,6 +17,8 @@ export interface ForumThread {
   cuplikan: string;
   penulis: string;
   penulisRole: "siswa" | "guru" | "admin";
+  /** Jenjang penulis — ditampilkan di forum umum untuk menandai lintas jenjang. */
+  penulisJenjang?: Jenjang | "Guru";
   balasan: number;
   dilihat: number;
   timeAgo: string;
@@ -70,6 +72,7 @@ export const forumThreads: ForumThread[] = [
     cuplikan: "Diskusi lintas jenjang: bagaimana kalian mengatur waktu belajar?",
     penulis: "Pak Bagus Santoso",
     penulisRole: "guru",
+    penulisJenjang: "Guru",
     balasan: 27,
     dilihat: 890,
     timeAgo: "3 hari lalu",
@@ -83,9 +86,39 @@ export const forumThreads: ForumThread[] = [
     cuplikan: "Bagikan judul buku favoritmu yang memperkaya kosakata.",
     penulis: "Citra Dewi",
     penulisRole: "siswa",
+    penulisJenjang: "SMA",
     balasan: 12,
     dilihat: 410,
     timeAgo: "4 hari lalu",
+  },
+  {
+    id: "th_7",
+    scope: "umum",
+    jenjang: null,
+    kategori: "IPA",
+    judul: "Eksperimen sains sederhana yang seru di rumah",
+    cuplikan: "Anak SD sampai SMA boleh ikut berbagi eksperimen favorit!",
+    penulis: "Kenzie Alfaro",
+    penulisRole: "siswa",
+    penulisJenjang: "SD",
+    balasan: 21,
+    dilihat: 654,
+    timeAgo: "6 jam lalu",
+  },
+  {
+    id: "th_8",
+    scope: "umum",
+    jenjang: null,
+    kategori: "Umum",
+    judul: "Bagaimana menghadapi rasa cemas sebelum ujian?",
+    cuplikan: "Diskusi terbuka: berbagi cara mengelola kecemasan menjelang ujian.",
+    penulis: "Bu Sari Melati",
+    penulisRole: "guru",
+    penulisJenjang: "Guru",
+    balasan: 34,
+    dilihat: 1203,
+    timeAgo: "1 hari lalu",
+    disematkan: true,
   },
   {
     id: "th_5",

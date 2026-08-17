@@ -35,6 +35,19 @@ export function ThreadCard({ thread }: { thread: ForumThread }) {
                 {thread.jenjang}
               </Badge>
             )}
+            {/* Forum umum/sekolah: tandai jenjang penulis (lintas jenjang). */}
+            {!thread.jenjang && thread.penulisJenjang && (
+              <Badge
+                variant={
+                  thread.penulisJenjang === "Guru"
+                    ? "outline"
+                    : jenjangVariant[thread.penulisJenjang]
+                }
+                className="text-[10px]"
+              >
+                {thread.penulisJenjang}
+              </Badge>
+            )}
           </div>
           <p className="mt-1.5 truncate font-medium leading-snug">
             {thread.judul}

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PlusCircle, ShieldCheck } from "lucide-react";
+import { PlusCircle, ShieldCheck, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -89,7 +89,17 @@ export function ForumView() {
           </p>
         </div>
       )}
-      {scope !== "jenjang" && (
+      {scope === "umum" && (
+        <div className="flex items-start gap-3 rounded-xl border bg-accent/30 p-3">
+          <Globe className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <p className="text-sm text-muted-foreground">
+            Forum terbuka lintas jenjang: siswa SD, SMP, SMA, dan guru bisa
+            berdiskusi bersama. Label jenjang di tiap topik menandai asal
+            penulisnya.
+          </p>
+        </div>
+      )}
+      {scope === "sekolah" && (
         <p className="text-sm text-muted-foreground">{scopeDeskripsi[scope]}</p>
       )}
 
