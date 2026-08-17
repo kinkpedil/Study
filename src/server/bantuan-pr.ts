@@ -2,6 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { db } from "@/db";
+import { homeworkSessions, homeworkMessages } from "@/db/schema";
 import { chatJson, chatComplete } from "@/lib/ai/provider";
 import { getJenjangStyle } from "@/lib/jenjang-style";
 import type { PetunjukInput, KlarifikasiInput } from "@/lib/validation/bantuan-pr";
@@ -76,4 +78,77 @@ Beri SATU petunjuk klarifikasi singkat yang membantu siswa maju satu langkah, ta
     { role: "user", content: user },
   ]);
   return teks.trim();
+}
+
+export interface SesiBantuanDibuat extends HasilPetunjuk {
+  sessionId: string;
+  judul: string;
+}
+
+function judulDari(pertanyaan: string): string {
+  const t = pertanyaan.trim().replace(/\s+/g, " ");
+  return t.length > 60 ? `${t.slice(0, 57)}…` : t;
+}
+
+/**
+ * Membuka sesi Bantuan PR: memanggil AI untuk petunjuk bertahap, lalu menyimpan
+ * sesi + pesan (pertanyaan siswa, petunjuk, langkah, jawaban) milik pengguna.
+ */
+export async function bukaSesiBantuan(
+  input: PetunjukInput,
+  profileId: string,
+): Promise<SesiBantuanDibuat> {
+  const hasil = await generatePetunjuk(input);
+  const judul = judulDari(input.pertanyaan);
+
+  const sessionId = await db.transaction(async (tx) => {
+    const [sesi] = await tx
+      .insert(homeworkSessions)
+      .values({
+        profileId,
+        judul,
+        mapel: input.mapel,
+        jenjang: input.jenjang,
+        pertanyaan: input.pertanyaan,
+        fotoUrl: input.fotoUrl,
+      })
+      .returning({ id: homeworkSessions.id });
+
+    let urutan = 0;
+    const pesan = [
+      {
+        sessionId: sesi.id,
+        sender: "siswa" as const,
+        tipe: "pertanyaan" as const,
+        content: input.pertanyaan,
+        urutan: urutan++,
+      },
+      ...hasil.petunjuk.map((teks) => ({
+        sessionId: sesi.id,
+        sender: "ai" as const,
+        tipe: "petunjuk" as const,
+        content: teks,
+        urutan: urutan++,
+      })),
+      {
+        sessionId: sesi.id,
+        sender: "ai" as const,
+        tipe: "langkah" as const,
+        content: hasil.langkahFinal.join("\n"),
+        urutan: urutan++,
+      },
+      {
+        sessionId: sesi.id,
+        sender: "ai" as const,
+        tipe: "jawaban" as const,
+        content: hasil.jawabanAkhir,
+        urutan: urutan++,
+      },
+    ];
+
+    await tx.insert(homeworkMessages).values(pesan);
+    return sesi.id;
+  });
+
+  return { sessionId, judul, ...hasil };
 }
