@@ -165,6 +165,70 @@ export function formatTanggal(iso: string): string {
   });
 }
 
+/** Pengumpulan siswa untuk sebuah tugas (perspektif guru). */
+export interface Pengumpulan {
+  id: string;
+  tugasId: string;
+  siswa: string;
+  waktu: string; // ISO
+  tipe: TugasTipe;
+  jawaban?: string;
+  fileNama?: string;
+  status: "perlu" | "dinilai";
+  nilai?: number;
+  komentar?: string;
+}
+
+export const pengumpulanTugas: Record<string, Pengumpulan[]> = {
+  tgg_1: [
+    {
+      id: "sub_1",
+      tugasId: "tgg_1",
+      siswa: "Aisyah Putri",
+      waktu: "2026-08-16T20:10:00Z",
+      tipe: "teks",
+      jawaban:
+        "1) 2x + 3 = 11 → 2x = 8 → x = 4. 2) 5x − 10 = 0 → x = 2. …",
+      status: "perlu",
+    },
+    {
+      id: "sub_2",
+      tugasId: "tgg_1",
+      siswa: "Budi Hartono",
+      waktu: "2026-08-16T21:35:00Z",
+      tipe: "teks",
+      jawaban: "1) x = 4. 2) x = 2. 3) x = -1. (tanpa langkah)",
+      status: "perlu",
+    },
+    {
+      id: "sub_3",
+      tugasId: "tgg_1",
+      siswa: "Citra Dewi",
+      waktu: "2026-08-15T09:00:00Z",
+      tipe: "teks",
+      jawaban: "Semua soal dikerjakan lengkap dengan langkah.",
+      status: "dinilai",
+      nilai: 95,
+      komentar: "Rapi dan lengkap. Bagus!",
+    },
+  ],
+  tgg_2: [
+    {
+      id: "sub_4",
+      tugasId: "tgg_2",
+      siswa: "Dimas Prasetyo",
+      waktu: "2026-08-11T18:00:00Z",
+      tipe: "teks",
+      jawaban: "Jawaban kuis aljabar dasar.",
+      status: "perlu",
+    },
+  ],
+};
+
+export function getPengumpulan(tugasId: string): Pengumpulan[] {
+  return pengumpulanTugas[tugasId] ?? [];
+}
+
 export function getTugasSiswa(id: string): TugasSiswa | undefined {
   return tugasSiswa.find((t) => t.id === id);
 }
