@@ -14,3 +14,9 @@ export const notifTypeEnum = pgEnum("notif_type", [
   "nilai",
   "sistem",
 ]);
+
+/** Tingkat kesulitan paket latihan soal. */
+export const kesulitanEnum = pgEnum("kesulitan", ["mudah", "sedang", "sulit"]);
+
+/** Tipe soal dalam sebuah latihan. */
+export const soalTipeEnum = pgEnum("soal_tipe", ["pilihan_ganda", "esai"]);

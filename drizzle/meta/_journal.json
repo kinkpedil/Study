@@ -8,6 +8,13 @@
       "when": 1786969990117,
       "tag": "0000_init_progres_notifikasi",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786970796654,
+      "tag": "0001_latihan_soal_rls",
+      "breakpoints": true
     }
   ]
 }

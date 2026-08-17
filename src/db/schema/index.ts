@@ -7,3 +7,4 @@ export * from "./schools";
 export * from "./profiles";
 export * from "./notifications";
 export * from "./progress";
+export * from "./latihan";
