@@ -156,3 +156,69 @@ export async function getDetailBuku(
 
   return { ...buku, tersimpan: saved.length > 0 };
 }
+
+export class KoleksiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "KoleksiError";
+  }
+}
+
+/** Daftar koleksi tersimpan pengguna (buku lengkap), terbaru dulu. */
+export async function listKoleksi(profileId: string): Promise<BukuRingkas[]> {
+  return db
+    .select({
+      id: libraryBooks.id,
+      title: libraryBooks.title,
+      author: libraryBooks.author,
+      jenjang: libraryBooks.jenjang,
+      kelas: libraryBooks.kelas,
+      mapel: libraryBooks.mapel,
+      kategori: libraryCategories.name,
+      tahun: libraryBooks.tahun,
+      coverUrl: libraryBooks.coverUrl,
+    })
+    .from(savedBooks)
+    .innerJoin(libraryBooks, eq(savedBooks.bookId, libraryBooks.id))
+    .leftJoin(
+      libraryCategories,
+      eq(libraryBooks.categoryId, libraryCategories.id),
+    )
+    .where(eq(savedBooks.profileId, profileId))
+    .orderBy(desc(savedBooks.createdAt));
+}
+
+/** Menyimpan buku ke koleksi (idempoten). 404 bila buku tak ada. */
+export async function tambahKoleksi(
+  profileId: string,
+  bookId: string,
+): Promise<void> {
+  const [ada] = await db
+    .select({ id: libraryBooks.id })
+    .from(libraryBooks)
+    .where(eq(libraryBooks.id, bookId))
+    .limit(1);
+  if (!ada) throw new KoleksiError("Buku tidak ditemukan.", 404);
+
+  await db
+    .insert(savedBooks)
+    .values({ profileId, bookId })
+    .onConflictDoNothing({
+      target: [savedBooks.profileId, savedBooks.bookId],
+    });
+}
+
+/** Menghapus buku dari koleksi. Mengembalikan true bila ada yang dihapus. */
+export async function hapusKoleksi(
+  profileId: string,
+  bookId: string,
+): Promise<boolean> {
+  const deleted = await db
+    .delete(savedBooks)
+    .where(and(eq(savedBooks.profileId, profileId), eq(savedBooks.bookId, bookId)))
+    .returning({ id: savedBooks.id });
+  return deleted.length > 0;
+}
