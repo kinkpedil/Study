@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRole } from "@/components/role/role-context";
 import type { ForumReply, ForumScope } from "@/lib/mock/forum";
+import { ReportButton } from "./report-button";
 
 const roleLabel: Record<string, string> = {
   siswa: "Siswa",
@@ -105,6 +106,9 @@ export function ReplyBox({
                 </span>
               </div>
               <p className="mt-1 text-sm">{r.isi}</p>
+              <div className="mt-2 flex justify-end">
+                <ReportButton />
+              </div>
             </div>
           </li>
         ))}

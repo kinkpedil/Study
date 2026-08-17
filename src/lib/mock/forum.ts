@@ -325,6 +325,87 @@ export const statusPengaduanLabel: Record<PengaduanStatus, string> = {
   selesai: "Selesai",
 };
 
+export type AlasanLaporan =
+  | "kasar"
+  | "sara"
+  | "perundungan"
+  | "spam"
+  | "doxxing"
+  | "berbahaya"
+  | "lainnya";
+
+export const alasanLaporanLabel: Record<AlasanLaporan, string> = {
+  kasar: "Bahasa kasar",
+  sara: "SARA",
+  perundungan: "Perundungan",
+  spam: "Spam",
+  doxxing: "Doxxing",
+  berbahaya: "Konten berbahaya",
+  lainnya: "Lainnya",
+};
+
+export type LaporanStatus = "menunggu" | "ditangani" | "ditolak";
+
+export interface Laporan {
+  id: string;
+  targetTipe: "thread" | "balasan";
+  cuplikan: string;
+  penulisKonten: string;
+  alasan: AlasanLaporan;
+  pelapor: string;
+  /** Ditandai oleh moderasi AI (skor 0–1) — null bila tidak ditandai AI. */
+  aiSkor: number | null;
+  status: LaporanStatus;
+  timeAgo: string;
+}
+
+export const laporanModerasi: Laporan[] = [
+  {
+    id: "lp_1",
+    targetTipe: "balasan",
+    cuplikan: "Dasar bodoh, gitu aja nggak bisa!",
+    penulisKonten: "Pengguna01",
+    alasan: "kasar",
+    pelapor: "Aisyah Putri",
+    aiSkor: 0.92,
+    status: "menunggu",
+    timeAgo: "30 menit lalu",
+  },
+  {
+    id: "lp_2",
+    targetTipe: "thread",
+    cuplikan: "Beli followers murah DM aku ya, promo hari ini!!!",
+    penulisKonten: "AkunPromo",
+    alasan: "spam",
+    pelapor: "Budi Hartono",
+    aiSkor: 0.98,
+    status: "menunggu",
+    timeAgo: "1 jam lalu",
+  },
+  {
+    id: "lp_3",
+    targetTipe: "balasan",
+    cuplikan: "Ini alamat rumah dia lengkap dengan nomor…",
+    penulisKonten: "Anonim88",
+    alasan: "doxxing",
+    pelapor: "Citra Dewi",
+    aiSkor: 0.87,
+    status: "menunggu",
+    timeAgo: "2 jam lalu",
+  },
+  {
+    id: "lp_4",
+    targetTipe: "balasan",
+    cuplikan: "Komentar yang dilaporkan tapi ternyata wajar.",
+    penulisKonten: "Pengguna22",
+    alasan: "lainnya",
+    pelapor: "Dimas Prasetyo",
+    aiSkor: null,
+    status: "ditangani",
+    timeAgo: "kemarin",
+  },
+];
+
 export const scopeLabel: Record<ForumScope, string> = {
   jenjang: "Jenjang Saya",
   umum: "Forum Umum",

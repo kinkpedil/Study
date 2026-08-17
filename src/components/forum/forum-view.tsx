@@ -52,8 +52,21 @@ export function ForumView() {
     setKategori("Semua");
   }
 
+  const moderator = profile.role === "guru" || profile.role === "admin";
+
   return (
     <div className="space-y-4">
+      {moderator && (
+        <div className="flex justify-end">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/forum/moderasi">
+              <ShieldCheck className="h-4 w-4" />
+              Moderasi
+            </Link>
+          </Button>
+        </div>
+      )}
+
       {/* Tab scope */}
       <div className="flex flex-wrap gap-1.5">
         {scopes.map((s) => {
