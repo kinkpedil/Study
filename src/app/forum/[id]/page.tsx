@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ReplyBox } from "@/components/forum/reply-box";
+import { ReportButton } from "@/components/forum/report-button";
 import { getThread, getThreadBody, getReplies } from "@/lib/mock/forum";
 
 const roleLabel: Record<string, string> = {
@@ -77,6 +78,9 @@ export default async function ThreadPage({
                 <Eye className="h-3.5 w-3.5" />
                 {thread.dilihat} dilihat
               </span>
+              <div className="ml-auto">
+                <ReportButton target="topik ini" />
+              </div>
             </div>
           </CardContent>
         </Card>

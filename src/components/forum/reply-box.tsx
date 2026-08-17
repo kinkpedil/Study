@@ -107,7 +107,7 @@ export function ReplyBox({
               </div>
               <p className="mt-1 text-sm">{r.isi}</p>
               <div className="mt-2 flex justify-end">
-                <ReportButton />
+                <ReportButton target="balasan ini" />
               </div>
             </div>
           </li>
