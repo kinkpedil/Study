@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { TutorStart } from "@/components/tutor/tutor-start";
 import { TutorSessions } from "@/components/tutor/tutor-sessions";
 import { NewSessionModal } from "@/components/tutor/new-session-modal";
+import { RekomendasiPanel } from "@/components/tutor/rekomendasi-panel";
 
 export const metadata: Metadata = {
   title: "Tutor AI Pribadi",
@@ -37,7 +38,8 @@ export default function TutorPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="space-y-6 lg:col-span-1">
+          <RekomendasiPanel />
           <TutorSessions />
         </div>
       </div>
