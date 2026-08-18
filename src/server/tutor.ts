@@ -14,6 +14,10 @@ import {
 import { chatComplete, type ChatMessage } from "@/lib/ai/provider";
 import { getJenjangStyle } from "@/lib/jenjang-style";
 import type { Jenjang } from "@/lib/mock/beranda";
+import {
+  periksaRisikoSiswa,
+  filterResponsAi,
+} from "@/server/tutor-keselamatan";
 import type { BuatSesiTutorInput } from "@/lib/validation/tutor";
 
 /**
@@ -245,6 +249,11 @@ function keChatMessages(riwayat: TutorMessageRow[]): ChatMessage[] {
 export interface HasilPesanTutor {
   pesanSiswa: TutorMessageRow;
   pesanAi: TutorMessageRow;
+  /** Terisi bila pesan siswa menyentuh topik berisiko (untuk UI peringatan). */
+  peringatan: {
+    kategori: string;
+    eskalasi: boolean;
+  } | null;
 }
 
 /**
@@ -271,6 +280,9 @@ export async function kirimPesanTutor(
   const urutanSiswa =
     (riwayat.at(-1)?.urutan ?? -1) + 1;
 
+  // Lapis 1: periksa topik berisiko pada pesan siswa (perlindungan anak).
+  const risiko = await periksaRisikoSiswa(isi);
+
   const [pesanSiswa] = await db
     .insert(tutorMessages)
     .values({
@@ -278,8 +290,36 @@ export async function kirimPesanTutor(
       sender: "siswa",
       content: isi,
       urutan: urutanSiswa,
+      flagged: risiko.berisiko,
+      riskKategori: risiko.kategori,
     })
     .returning();
+
+  // Topik berisiko: JANGAN panggil model; beri tanggapan aman deterministik.
+  if (risiko.berisiko) {
+    const [pesanAiAman] = await db
+      .insert(tutorMessages)
+      .values({
+        sessionId,
+        sender: "ai",
+        content: risiko.pesanAman,
+        urutan: urutanSiswa + 1,
+        flagged: true,
+        riskKategori: risiko.kategori,
+      })
+      .returning();
+
+    await db
+      .update(tutorSessions)
+      .set({ updatedAt: sql`now()` })
+      .where(eq(tutorSessions.id, sessionId));
+
+    return {
+      pesanSiswa,
+      pesanAi: pesanAiAman,
+      peringatan: { kategori: risiko.kategori!, eskalasi: risiko.eskalasi },
+    };
+  }
 
   const [profil] = await db
     .select({ nama: profiles.fullName, jenjang: profiles.jenjang })
@@ -301,13 +341,17 @@ export async function kirimPesanTutor(
     { maxTokens: 700 },
   );
 
+  // Lapis 2: saring respons AI sebelum sampai ke siswa.
+  const filter = await filterResponsAi(balasan.trim());
+
   const [pesanAi] = await db
     .insert(tutorMessages)
     .values({
       sessionId,
       sender: "ai",
-      content: balasan.trim(),
+      content: filter.teks,
       urutan: urutanSiswa + 1,
+      flagged: !filter.aman,
     })
     .returning();
 
@@ -316,7 +360,7 @@ export async function kirimPesanTutor(
     .set({ updatedAt: sql`now()` })
     .where(eq(tutorSessions.id, sessionId));
 
-  return { pesanSiswa, pesanAi };
+  return { pesanSiswa, pesanAi, peringatan: null };
 }
 
 /** Menandai sesi selesai (atau kembali berlangsung). */
