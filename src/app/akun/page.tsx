@@ -8,6 +8,7 @@ import { AkunIdentitas } from "@/components/akun/akun-identitas";
 import { ProfilForm } from "@/components/akun/profil-form";
 import { PersetujuanOrtu } from "@/components/akun/persetujuan-ortu";
 import { AkunHeaderActions } from "@/components/akun/akun-header-actions";
+import { AkunKeluar } from "@/components/akun/akun-keluar";
 import { AkunSection } from "@/components/akun/akun-section";
 
 export const metadata: Metadata = {
@@ -52,9 +53,9 @@ export default function AkunPage() {
           <AkunSection
             id="keamanan"
             judul="Keamanan"
-            deskripsi="Kata sandi dan pengaturan akses akun."
+            deskripsi="Akses akun, keluar, dan penghapusan akun."
           >
-            <SegeraHadir teks="Pengaturan kata sandi akan tersedia di bagian ini." />
+            <AkunKeluar />
           </AkunSection>
 
           <AkunSection
