@@ -111,7 +111,7 @@ export async function listLaporan(
     targetId: r.targetId,
     reason: r.reason,
     status: r.status,
-    pelapor: r.pelapor ?? "Anonim",
+    pelapor: r.pelapor ?? "Moderasi AI",
     createdAt: r.createdAt.toISOString(),
   }));
 }

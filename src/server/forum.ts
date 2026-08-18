@@ -14,6 +14,7 @@ import type {
   CreateThreadInput,
   CreatePostInput,
 } from "@/lib/validation/forum";
+import { moderasiKonten, laporSistem } from "./moderasi-ai";
 
 export interface ThreadRingkas {
   id: string;
@@ -131,6 +132,15 @@ export async function createThread(
     }
   }
 
+  // Moderasi otomatis: blokir konten berbahaya, tandai yang mencurigakan.
+  const mod = await moderasiKonten(`${input.title}\n${input.body}`);
+  if (mod.tindakan === "blokir") {
+    throw new ForumError(
+      "Konten terdeteksi melanggar aturan komunitas. Mohon perbaiki.",
+      422,
+    );
+  }
+
   const [row] = await db
     .insert(forumThreads)
     .values({
@@ -140,9 +150,13 @@ export async function createThread(
       category: input.category,
       title: input.title,
       body: input.body,
+      moderationStatus: mod.tindakan === "tandai" ? "flagged" : "visible",
     })
     .returning({ id: forumThreads.id });
 
+  if (mod.tindakan === "tandai") {
+    await laporSistem("thread", row.id, mod.kategori);
+  }
   return { id: row.id };
 }
 
@@ -237,14 +251,26 @@ export async function createPost(
     throw new ForumError("Tidak berwenang membalas topik ini.", 403);
   }
 
+  const mod = await moderasiKonten(input.content);
+  if (mod.tindakan === "blokir") {
+    throw new ForumError(
+      "Balasan terdeteksi melanggar aturan komunitas. Mohon perbaiki.",
+      422,
+    );
+  }
+
   const [row] = await db
     .insert(forumPosts)
     .values({
       threadId,
       authorProfileId: profile.id,
       content: input.content,
+      moderationStatus: mod.tindakan === "tandai" ? "flagged" : "visible",
     })
     .returning({ id: forumPosts.id });
 
+  if (mod.tindakan === "tandai") {
+    await laporSistem("post", row.id, mod.kategori);
+  }
   return { id: row.id };
 }

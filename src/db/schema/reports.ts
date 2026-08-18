@@ -29,9 +29,11 @@ export const reports = pgTable(
   "reports",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    reporterProfileId: uuid("reporter_profile_id")
-      .notNull()
-      .references(() => profiles.id, { onDelete: "cascade" }),
+    // Null = laporan otomatis oleh sistem (moderasi AI).
+    reporterProfileId: uuid("reporter_profile_id").references(
+      () => profiles.id,
+      { onDelete: "cascade" },
+    ),
     targetType: reportTargetTypeEnum("target_type").notNull(),
     // Polimorfik: id topik atau balasan (bukan FK).
     targetId: uuid("target_id").notNull(),
