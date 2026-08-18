@@ -7,6 +7,7 @@ import { AkunNav } from "@/components/akun/akun-nav";
 import { AkunIdentitas } from "@/components/akun/akun-identitas";
 import { ProfilForm } from "@/components/akun/profil-form";
 import { PersetujuanOrtu } from "@/components/akun/persetujuan-ortu";
+import { AkunHeaderActions } from "@/components/akun/akun-header-actions";
 import { AkunSection } from "@/components/akun/akun-section";
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function AkunPage() {
       <PageHeader
         title="Akun & Keamanan"
         description="Kelola profil, kata sandi, sesi perangkat, preferensi, dan privasi datamu."
+        action={<AkunHeaderActions />}
       />
 
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
