@@ -10,3 +10,4 @@ export * from "./progress";
 export * from "./latihan";
 export * from "./bantuan-pr";
 export * from "./perpustakaan";
+export * from "./forum";

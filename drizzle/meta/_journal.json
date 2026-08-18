@@ -57,6 +57,13 @@
       "when": 1786986913083,
       "tag": "0007_perpustakaan_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787036551817,
+      "tag": "0008_forum_threads_posts",
+      "breakpoints": true
     }
   ]
 }

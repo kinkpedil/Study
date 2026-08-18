@@ -35,3 +35,13 @@ export const hwMsgTipeEnum = pgEnum("hw_msg_tipe", [
 
 /** Status sesi Bantuan PR. */
 export const hwStatusEnum = pgEnum("hw_status", ["berlangsung", "selesai"]);
+
+/** Cakupan topik forum (diskusi jenjang vs forum umum). */
+export const forumScopeEnum = pgEnum("forum_scope", ["jenjang", "umum"]);
+
+/** Status moderasi sebuah postingan/topik forum. */
+export const moderationStatusEnum = pgEnum("moderation_status", [
+  "visible",
+  "flagged",
+  "removed",
+]);
