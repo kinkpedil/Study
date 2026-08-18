@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { profiles, schools, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { siapkanPrivasiAnak } from "@/server/privasi-anak";
 import type { DaftarInput, MasukInput } from "@/lib/validation/auth";
 
 /**
@@ -81,6 +82,11 @@ export async function daftarPengguna(input: DaftarInput): Promise<HasilDaftar> {
       set: { fullName: input.nama, schoolId },
     })
     .returning();
+
+  // Perlindungan data anak: siapkan izin pemrosesan data default untuk siswa.
+  if (input.role === "siswa") {
+    await siapkanPrivasiAnak(profile.id);
+  }
 
   return { profile, sesiAktif: !!data.session };
 }

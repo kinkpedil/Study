@@ -5,6 +5,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { pesanTutorSchema } from "@/lib/validation/tutor";
 import { getSesiTutor, kirimPesanTutor, TutorError } from "@/server/tutor";
+import { PrivasiError } from "@/server/privasi-anak";
 import { AIError } from "@/lib/ai/provider";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export async function POST(
     const data = await kirimPesanTutor(sessionId, userId, parsed.data.isi);
     return NextResponse.json({ data }, { status: 201 });
   } catch (err) {
-    if (err instanceof TutorError) {
+    if (err instanceof TutorError || err instanceof PrivasiError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
     if (err instanceof AIError) {

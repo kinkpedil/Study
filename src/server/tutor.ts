@@ -19,6 +19,7 @@ import {
   filterResponsAi,
 } from "@/server/tutor-keselamatan";
 import { laporIndikasiBerbahaya } from "@/server/eskalasi-tutor";
+import { pastikanIzinAI } from "@/server/privasi-anak";
 import type { BuatSesiTutorInput } from "@/lib/validation/tutor";
 
 /**
@@ -271,6 +272,9 @@ export async function kirimPesanTutor(
   isi: string,
 ): Promise<HasilPesanTutor> {
   const sesi = await ambilSesiMilik(sessionId, profileId);
+
+  // Perlindungan data anak: fitur AI hanya jika izin "ai" aktif.
+  await pastikanIzinAI(profileId);
 
   const riwayat = await db
     .select()
