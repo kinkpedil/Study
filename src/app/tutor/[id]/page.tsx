@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TutorChat } from "@/components/tutor/tutor-chat";
+import { EskalasiGuru } from "@/components/tutor/eskalasi-guru";
 import {
   getTutorSession,
   getTutorMessages,
@@ -73,7 +74,12 @@ export default async function TutorSessionPage({
         </Button>
         <PageHeader
           title={judul}
-          action={<Badge variant="secondary">{mapel}</Badge>}
+          action={
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{mapel}</Badge>
+              <EskalasiGuru />
+            </div>
+          }
         />
         <TutorChat mapel={mapel} pesanAwal={pesanAwal} />
       </div>
