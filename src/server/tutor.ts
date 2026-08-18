@@ -18,6 +18,7 @@ import {
   periksaRisikoSiswa,
   filterResponsAi,
 } from "@/server/tutor-keselamatan";
+import { laporIndikasiBerbahaya } from "@/server/eskalasi-tutor";
 import type { BuatSesiTutorInput } from "@/lib/validation/tutor";
 
 /**
@@ -313,6 +314,16 @@ export async function kirimPesanTutor(
       .update(tutorSessions)
       .set({ updatedAt: sql`now()` })
       .where(eq(tutorSessions.id, sessionId));
+
+    // Indikasi serius → laporkan otomatis ke guru/admin (best-effort; tidak
+    // boleh menggagalkan tanggapan aman untuk siswa).
+    if (risiko.eskalasi) {
+      try {
+        await laporIndikasiBerbahaya(sessionId, profileId);
+      } catch (err) {
+        console.error("Auto-lapor indikasi berbahaya gagal:", err);
+      }
+    }
 
     return {
       pesanSiswa,

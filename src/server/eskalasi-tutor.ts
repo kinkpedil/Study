@@ -1,10 +1,11 @@
 import "server-only";
 
-import { and, eq, desc, inArray } from "drizzle-orm";
+import { and, eq, desc, inArray, isNotNull } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
   tutorSessions,
+  tutorMessages,
   tutorEscalations,
   profiles,
   notifications,
@@ -94,11 +95,107 @@ export async function buatEskalasi(
   return eskalasi;
 }
 
+/** Label ramah untuk kategori risiko pada catatan & notifikasi. */
+const labelRisiko: Record<string, string> = {
+  keselamatan_diri: "keselamatan diri",
+  kekerasan: "kekerasan",
+  konten_dewasa: "konten dewasa",
+  perundungan: "perundungan",
+  data_pribadi: "data pribadi",
+};
+
+/**
+ * Melaporkan indikasi berbahaya pada sebuah sesi tutor. Berbeda dari eskalasi
+ * biasa: dipicu otomatis oleh filter keselamatan (atau dilaporkan siswa) saat
+ * ada tanda bahaya. Kategori diambil server-authoritative dari pesan yang
+ * ditandai `flagged`, bukan dari input klien. Guru/admin sekolah menerima
+ * notifikasi mendesak agar segera menindaklanjuti.
+ */
+export async function laporIndikasiBerbahaya(
+  sessionId: string,
+  siswaId: string,
+): Promise<TutorEscalation> {
+  const [sesi] = await db
+    .select()
+    .from(tutorSessions)
+    .where(eq(tutorSessions.id, sessionId))
+    .limit(1);
+  if (!sesi) throw new EskalasiError("Sesi tidak ditemukan.", 404);
+  if (sesi.profileId !== siswaId) {
+    throw new EskalasiError("Tidak berwenang atas sesi ini.", 403);
+  }
+
+  // Ambil kategori risiko terbaru yang ditandai filter keselamatan.
+  const [pesanFlag] = await db
+    .select({ kategori: tutorMessages.riskKategori })
+    .from(tutorMessages)
+    .where(
+      and(
+        eq(tutorMessages.sessionId, sessionId),
+        eq(tutorMessages.sender, "siswa"),
+        eq(tutorMessages.flagged, true),
+        isNotNull(tutorMessages.riskKategori),
+      ),
+    )
+    .orderBy(desc(tutorMessages.urutan))
+    .limit(1);
+
+  if (!pesanFlag?.kategori) {
+    throw new EskalasiError("Tidak ada indikasi berbahaya pada sesi ini.", 422);
+  }
+  const kategori = pesanFlag.kategori;
+  const label = labelRisiko[kategori] ?? kategori;
+
+  const [siswa] = await db
+    .select({ schoolId: profiles.schoolId, jenjang: profiles.jenjang, nama: profiles.fullName })
+    .from(profiles)
+    .where(eq(profiles.id, siswaId))
+    .limit(1);
+
+  // Idempotensi: satu laporan indikasi 'baru' per sesi.
+  const catatan = `⚠️ Indikasi ${label} terdeteksi filter keselamatan. Mohon segera ditindaklanjuti.`;
+  const [adaBaru] = await db
+    .select()
+    .from(tutorEscalations)
+    .where(
+      and(
+        eq(tutorEscalations.sessionId, sessionId),
+        eq(tutorEscalations.status, "baru"),
+        eq(tutorEscalations.catatan, catatan),
+      ),
+    )
+    .limit(1);
+  if (adaBaru) return adaBaru;
+
+  const [laporan] = await db
+    .insert(tutorEscalations)
+    .values({
+      sessionId,
+      siswaId,
+      schoolId: siswa?.schoolId ?? null,
+      judul: sesi.judul,
+      mapel: sesi.mapel,
+      jenjang: sesi.jenjang,
+      catatan,
+    })
+    .returning();
+
+  await notifikasiGuru(
+    { schoolId: siswa?.schoolId ?? null, guruId: null },
+    siswa?.nama ?? "Seorang siswa",
+    sesi.judul,
+    `⚠️ Indikasi ${label} pada sesi tutor "${sesi.judul}" (${siswa?.nama ?? "siswa"}). Mohon segera ditindaklanjuti.`,
+  );
+
+  return laporan;
+}
+
 /** Kirim notifikasi ke guru tujuan, atau seluruh guru/admin sekolah siswa. */
 async function notifikasiGuru(
   target: { schoolId: string | null; guruId: string | null },
   namaSiswa: string,
   judul: string,
+  pesan?: string,
 ): Promise<void> {
   let penerima: { id: string }[] = [];
   if (target.guruId) {
@@ -116,12 +213,16 @@ async function notifikasiGuru(
   }
   if (penerima.length === 0) return;
 
+  const title = pesan ? "Indikasi berbahaya terdeteksi" : "Permintaan bantuan siswa";
+  const message =
+    pesan ?? `${namaSiswa} meneruskan sesi tutor "${judul}" untuk kamu bantu.`;
+
   await db.insert(notifications).values(
     penerima.map((p) => ({
       userId: p.id,
       type: "sistem" as const,
-      title: "Permintaan bantuan siswa",
-      message: `${namaSiswa} meneruskan sesi tutor "${judul}" untuk kamu bantu.`,
+      title,
+      message,
       link: "/tutor/eskalasi",
     })),
   );
