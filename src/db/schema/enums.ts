@@ -107,6 +107,22 @@ export const reportStatusEnum = pgEnum("report_status", [
   "ditolak",
 ]);
 
+/** Kategori entri catatan aktivitas (audit log). */
+export const auditKategoriEnum = pgEnum("audit_kategori", [
+  "pengguna",
+  "moderasi",
+  "forum",
+  "keamanan",
+  "sistem",
+]);
+
+/** Status persetujuan orang tua/wali untuk akun anak. */
+export const consentStatusEnum = pgEnum("consent_status", [
+  "belum",
+  "menunggu",
+  "disetujui",
+]);
+
 /** Bentuk pengumpulan tugas. */
 export const tugasTipeEnum = pgEnum("tugas_tipe", ["teks", "file"]);
 

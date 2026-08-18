@@ -16,3 +16,4 @@ export * from "./reports";
 export * from "./rate-limits";
 export * from "./tugas";
 export * from "./tutor";
+export * from "./akun";
