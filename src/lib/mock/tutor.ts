@@ -98,3 +98,36 @@ export const rekomendasiTutor: Rekomendasi[] = [
 export function getTutorSession(id: string): TutorSession | undefined {
   return tutorSessions.find((s) => s.id === id);
 }
+
+export interface TutorMessage {
+  id: string;
+  sender: "siswa" | "ai";
+  isi: string;
+}
+
+const transkrip: Record<string, TutorMessage[]> = {
+  ts_1: [
+    { id: "m1", sender: "siswa", isi: "Kenapa 1/2 sama dengan 2/4?" },
+    {
+      id: "m2",
+      sender: "ai",
+      isi: "Pertanyaan bagus! Bayangkan sebuah pizza. Kalau dipotong jadi 2 dan kamu ambil 1 potong, kamu punya 1/2. Kalau pizza yang sama dipotong jadi 4 dan kamu ambil 2 potong, jumlah pizzanya sama, kan? Itu sebabnya 1/2 = 2/4.",
+    },
+    { id: "m3", sender: "siswa", isi: "Oh berarti tinggal dikali 2 ya?" },
+    {
+      id: "m4",
+      sender: "ai",
+      isi: "Tepat sekali! Kalau pembilang dan penyebut sama-sama dikali angka yang sama, nilainya tetap. Mau coba satu soal bareng?",
+    },
+  ],
+};
+
+export function getTutorMessages(id: string): TutorMessage[] {
+  return transkrip[id] ?? [];
+}
+
+/** Balasan tutor tiruan (aman & ramah) untuk pertanyaan siswa. */
+export function balasanTutorMock(pertanyaan: string): string {
+  const t = pertanyaan.trim();
+  return `Ide yang bagus untuk ditanyakan! Yuk kita pahami "${t.length > 60 ? t.slice(0, 57) + "…" : t}" pelan-pelan. Coba ceritakan dulu bagian mana yang paling membingungkan buatmu, biar aku bisa bantu langkah demi langkah dengan contoh sederhana.`;
+}
