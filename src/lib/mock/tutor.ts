@@ -172,6 +172,92 @@ export function getTutorMessages(id: string): TutorMessage[] {
   return transkrip[id] ?? [];
 }
 
+/**
+ * Kategori topik berisiko yang butuh penanganan khusus (bukan dijawab tutor).
+ * Deteksi asli dilakukan moderasi AI di server; ini hanya pratinjau UI.
+ */
+export type KategoriRisiko =
+  | "keselamatan-diri"
+  | "kekerasan"
+  | "konten-dewasa"
+  | "perundungan"
+  | "data-pribadi";
+
+export interface TopikBerisiko {
+  kategori: KategoriRisiko;
+  judul: string;
+  pesan: string;
+  /** Sarankan meneruskan ke guru/orang dewasa tepercaya. */
+  eskalasi: boolean;
+}
+
+const kamusRisiko: { kategori: KategoriRisiko; kata: string[] }[] = [
+  {
+    kategori: "keselamatan-diri",
+    kata: ["bunuh diri", "menyakiti diri", "mengakhiri hidup", "tidak ingin hidup", "melukai diri"],
+  },
+  {
+    kategori: "kekerasan",
+    kata: ["memukul", "senjata", "menyakiti orang", "berkelahi", "mengancam"],
+  },
+  {
+    kategori: "konten-dewasa",
+    kata: ["seks", "pornografi", "konten dewasa"],
+  },
+  {
+    kategori: "perundungan",
+    kata: ["dibully", "diejek", "diintimidasi", "dirundung", "diancam teman"],
+  },
+  {
+    kategori: "data-pribadi",
+    kata: ["alamat rumah", "nomor hp", "nomor telepon", "kata sandi", "password"],
+  },
+];
+
+const rincianRisiko: Record<KategoriRisiko, Omit<TopikBerisiko, "kategori">> = {
+  "keselamatan-diri": {
+    judul: "Kamu tidak sendirian",
+    pesan:
+      "Sepertinya kamu sedang menghadapi hal yang berat. Aku bukan pengganti bantuan sungguhan — tolong bicara dengan orang dewasa yang kamu percaya, atau hubungi Sejiwa di 119 ext 8 (24 jam, gratis).",
+    eskalasi: true,
+  },
+  kekerasan: {
+    judul: "Ini butuh bantuan orang dewasa",
+    pesan:
+      "Kalau kamu atau temanmu dalam bahaya, segera beri tahu guru, orang tua, atau orang dewasa tepercaya. Aku bisa bantu meneruskan sesi ini ke gurumu.",
+    eskalasi: true,
+  },
+  "konten-dewasa": {
+    judul: "Topik ini tidak untuk tutor belajar",
+    pesan:
+      "Maaf, aku tidak bisa membahas topik ini. Yuk kita kembali ke materi pelajaran. Kalau ada yang mengganggumu, cerita ke orang dewasa yang kamu percaya, ya.",
+    eskalasi: false,
+  },
+  perundungan: {
+    judul: "Terima kasih sudah cerita",
+    pesan:
+      "Diejek atau dirundung itu tidak boleh dibiarkan, dan itu bukan salahmu. Ceritakan ke gurumu atau orang tua agar bisa dibantu. Aku bisa meneruskan sesi ini ke gurumu bila kamu mau.",
+    eskalasi: true,
+  },
+  "data-pribadi": {
+    judul: "Jaga data pribadimu",
+    pesan:
+      "Jangan bagikan alamat, nomor telepon, atau kata sandi ke siapa pun secara online, termasuk ke aku. Kalau ada yang memintanya, beri tahu orang dewasa tepercaya.",
+    eskalasi: false,
+  },
+};
+
+/** Deteksi topik berisiko sederhana (pratinjau); null jika aman. */
+export function deteksiTopikBerisiko(pertanyaan: string): TopikBerisiko | null {
+  const t = pertanyaan.toLowerCase();
+  for (const { kategori, kata } of kamusRisiko) {
+    if (kata.some((k) => t.includes(k))) {
+      return { kategori, ...rincianRisiko[kategori] };
+    }
+  }
+  return null;
+}
+
 /** Balasan tutor tiruan (aman & ramah) untuk pertanyaan siswa. */
 export function balasanTutorMock(pertanyaan: string): string {
   const t = pertanyaan.trim();
