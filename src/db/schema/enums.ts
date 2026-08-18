@@ -36,6 +36,30 @@ export const hwMsgTipeEnum = pgEnum("hw_msg_tipe", [
 /** Status sesi Bantuan PR. */
 export const hwStatusEnum = pgEnum("hw_status", ["berlangsung", "selesai"]);
 
+/** Status sesi Tutor AI Pribadi. */
+export const tutorStatusEnum = pgEnum("tutor_status", [
+  "berlangsung",
+  "selesai",
+]);
+
+/** Pengirim pesan dalam sesi Tutor AI. */
+export const tutorSenderEnum = pgEnum("tutor_sender", ["siswa", "ai"]);
+
+/** Kategori topik berisiko yang terdeteksi moderasi pada pesan tutor. */
+export const tutorRiskEnum = pgEnum("tutor_risk", [
+  "keselamatan_diri",
+  "kekerasan",
+  "konten_dewasa",
+  "perundungan",
+  "data_pribadi",
+]);
+
+/** Status penanganan eskalasi sesi tutor ke guru. */
+export const tutorEskalasiStatusEnum = pgEnum("tutor_eskalasi_status", [
+  "baru",
+  "ditangani",
+]);
+
 /** Cakupan topik forum (diskusi jenjang vs forum umum). */
 export const forumScopeEnum = pgEnum("forum_scope", ["jenjang", "umum"]);
 

@@ -1,0 +1,3596 @@
+{
+  "id": "960e617f-b26b-44cd-b2b8-9c733e1e6e86",
+  "prevId": "19d6a58a-c35f-4651-9101-39d046b3d33e",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.schools": {
+      "name": "schools",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "npsn": {
+          "name": "npsn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profiles": {
+      "name": "profiles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "school_id": {
+          "name": "school_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'siswa'"
+        },
+        "jenjang": {
+          "name": "jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kelas": {
+          "name": "kelas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profiles_school_id_schools_id_fk": {
+          "name": "profiles_school_id_schools_id_fk",
+          "tableFrom": "profiles",
+          "columnsFrom": [
+            "school_id"
+          ],
+          "tableTo": "schools",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notifications": {
+      "name": "notifications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "notif_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'sistem'"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "read_at": {
+          "name": "read_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "notifications_user_created_idx": {
+          "name": "notifications_user_created_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "notifications_user_id_profiles_id_fk": {
+          "name": "notifications_user_id_profiles_id_fk",
+          "tableFrom": "notifications",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.learning_progress": {
+      "name": "learning_progress",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mastery_percent": {
+          "name": "mastery_percent",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "soal_dikerjakan": {
+          "name": "soal_dikerjakan",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "rata_rata_nilai": {
+          "name": "rata_rata_nilai",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "learning_progress_profile_id_profiles_id_fk": {
+          "name": "learning_progress_profile_id_profiles_id_fk",
+          "tableFrom": "learning_progress",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "learning_progress_profile_mapel_uq": {
+          "name": "learning_progress_profile_mapel_uq",
+          "columns": [
+            "profile_id",
+            "mapel"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.answers": {
+      "name": "answers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "attempt_id": {
+          "name": "attempt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jawaban": {
+          "name": "jawaban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "benar": {
+          "name": "benar",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "answers_attempt_id_attempts_id_fk": {
+          "name": "answers_attempt_id_attempts_id_fk",
+          "tableFrom": "answers",
+          "columnsFrom": [
+            "attempt_id"
+          ],
+          "tableTo": "attempts",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "answers_question_id_questions_id_fk": {
+          "name": "answers_question_id_questions_id_fk",
+          "tableFrom": "answers",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "tableTo": "questions",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "answers_attempt_question_uq": {
+          "name": "answers_attempt_question_uq",
+          "columns": [
+            "attempt_id",
+            "question_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "answers_owner": {
+          "name": "answers_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from attempts a where a.id = \"answers\".\"attempt_id\" and a.profile_id = (select auth.uid()))",
+          "withCheck": "exists (select 1 from attempts a where a.id = \"answers\".\"attempt_id\" and a.profile_id = (select auth.uid()))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.attempts": {
+      "name": "attempts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "exercise_set_id": {
+          "name": "exercise_set_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "benar": {
+          "name": "benar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total": {
+          "name": "total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "attempts_profile_idx": {
+          "name": "attempts_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "attempts_exercise_set_id_exercise_sets_id_fk": {
+          "name": "attempts_exercise_set_id_exercise_sets_id_fk",
+          "tableFrom": "attempts",
+          "columnsFrom": [
+            "exercise_set_id"
+          ],
+          "tableTo": "exercise_sets",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "attempts_profile_id_profiles_id_fk": {
+          "name": "attempts_profile_id_profiles_id_fk",
+          "tableFrom": "attempts",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "attempts_owner": {
+          "name": "attempts_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"attempts\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"attempts\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.exercise_sets": {
+      "name": "exercise_sets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "author_profile_id": {
+          "name": "author_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "judul": {
+          "name": "judul",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenjang": {
+          "name": "jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kelas": {
+          "name": "kelas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topik": {
+          "name": "topik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kesulitan": {
+          "name": "kesulitan",
+          "type": "kesulitan",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'sedang'"
+        },
+        "jumlah_soal": {
+          "name": "jumlah_soal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_public": {
+          "name": "is_public",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "exercise_sets_author_idx": {
+          "name": "exercise_sets_author_idx",
+          "columns": [
+            {
+              "expression": "author_profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "exercise_sets_author_profile_id_profiles_id_fk": {
+          "name": "exercise_sets_author_profile_id_profiles_id_fk",
+          "tableFrom": "exercise_sets",
+          "columnsFrom": [
+            "author_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "exercise_sets_select": {
+          "name": "exercise_sets_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"exercise_sets\".\"author_profile_id\" = (select auth.uid()) or \"exercise_sets\".\"is_public\""
+        },
+        "exercise_sets_insert": {
+          "name": "exercise_sets_insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"exercise_sets\".\"author_profile_id\" = (select auth.uid())"
+        },
+        "exercise_sets_update": {
+          "name": "exercise_sets_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"exercise_sets\".\"author_profile_id\" = (select auth.uid())",
+          "withCheck": "\"exercise_sets\".\"author_profile_id\" = (select auth.uid())"
+        },
+        "exercise_sets_delete": {
+          "name": "exercise_sets_delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"exercise_sets\".\"author_profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.questions": {
+      "name": "questions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "exercise_set_id": {
+          "name": "exercise_set_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nomor": {
+          "name": "nomor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipe": {
+          "name": "tipe",
+          "type": "soal_tipe",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pilihan_ganda'"
+        },
+        "pertanyaan": {
+          "name": "pertanyaan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opsi": {
+          "name": "opsi",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kunci": {
+          "name": "kunci",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pembahasan": {
+          "name": "pembahasan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "questions_exercise_set_id_exercise_sets_id_fk": {
+          "name": "questions_exercise_set_id_exercise_sets_id_fk",
+          "tableFrom": "questions",
+          "columnsFrom": [
+            "exercise_set_id"
+          ],
+          "tableTo": "exercise_sets",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "questions_set_nomor_uq": {
+          "name": "questions_set_nomor_uq",
+          "columns": [
+            "exercise_set_id",
+            "nomor"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "questions_select": {
+          "name": "questions_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from exercise_sets es where es.id = \"questions\".\"exercise_set_id\" and (es.author_profile_id = (select auth.uid()) or es.is_public))"
+        },
+        "questions_write": {
+          "name": "questions_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from exercise_sets es where es.id = \"questions\".\"exercise_set_id\" and es.author_profile_id = (select auth.uid()))",
+          "withCheck": "exists (select 1 from exercise_sets es where es.id = \"questions\".\"exercise_set_id\" and es.author_profile_id = (select auth.uid()))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.homework_messages": {
+      "name": "homework_messages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sender": {
+          "name": "sender",
+          "type": "hw_sender",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipe": {
+          "name": "tipe",
+          "type": "hw_msg_tipe",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pertanyaan'"
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urutan": {
+          "name": "urutan",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "homework_messages_session_idx": {
+          "name": "homework_messages_session_idx",
+          "columns": [
+            {
+              "expression": "session_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "urutan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "homework_messages_session_id_homework_sessions_id_fk": {
+          "name": "homework_messages_session_id_homework_sessions_id_fk",
+          "tableFrom": "homework_messages",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "tableTo": "homework_sessions",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "homework_messages_owner": {
+          "name": "homework_messages_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from homework_sessions s where s.id = \"homework_messages\".\"session_id\" and s.profile_id = (select auth.uid()))",
+          "withCheck": "exists (select 1 from homework_sessions s where s.id = \"homework_messages\".\"session_id\" and s.profile_id = (select auth.uid()))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.homework_sessions": {
+      "name": "homework_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "judul": {
+          "name": "judul",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenjang": {
+          "name": "jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pertanyaan": {
+          "name": "pertanyaan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "foto_url": {
+          "name": "foto_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "hw_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'berlangsung'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "homework_sessions_profile_idx": {
+          "name": "homework_sessions_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "homework_sessions_profile_id_profiles_id_fk": {
+          "name": "homework_sessions_profile_id_profiles_id_fk",
+          "tableFrom": "homework_sessions",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "homework_sessions_owner": {
+          "name": "homework_sessions_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"homework_sessions\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"homework_sessions\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.library_books": {
+      "name": "library_books",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author": {
+          "name": "author",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publisher": {
+          "name": "publisher",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "jenjang": {
+          "name": "jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kelas": {
+          "name": "kelas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tahun": {
+          "name": "tahun",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deskripsi": {
+          "name": "deskripsi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sumber_url": {
+          "name": "sumber_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cover_url": {
+          "name": "cover_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "library_books_jenjang_idx": {
+          "name": "library_books_jenjang_idx",
+          "columns": [
+            {
+              "expression": "jenjang",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "library_books_mapel_idx": {
+          "name": "library_books_mapel_idx",
+          "columns": [
+            {
+              "expression": "mapel",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "library_books_category_idx": {
+          "name": "library_books_category_idx",
+          "columns": [
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "library_books_category_id_library_categories_id_fk": {
+          "name": "library_books_category_id_library_categories_id_fk",
+          "tableFrom": "library_books",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "tableTo": "library_categories",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "library_books_select": {
+          "name": "library_books_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "true"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.library_categories": {
+      "name": "library_categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "library_categories_name_unique": {
+          "name": "library_categories_name_unique",
+          "columns": [
+            "name"
+          ],
+          "nullsNotDistinct": false
+        },
+        "library_categories_slug_unique": {
+          "name": "library_categories_slug_unique",
+          "columns": [
+            "slug"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "library_categories_select": {
+          "name": "library_categories_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "true"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.saved_books": {
+      "name": "saved_books",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "book_id": {
+          "name": "book_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "saved_books_profile_idx": {
+          "name": "saved_books_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "saved_books_profile_id_profiles_id_fk": {
+          "name": "saved_books_profile_id_profiles_id_fk",
+          "tableFrom": "saved_books",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "saved_books_book_id_library_books_id_fk": {
+          "name": "saved_books_book_id_library_books_id_fk",
+          "tableFrom": "saved_books",
+          "columnsFrom": [
+            "book_id"
+          ],
+          "tableTo": "library_books",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "saved_books_profile_book_uq": {
+          "name": "saved_books_profile_book_uq",
+          "columns": [
+            "profile_id",
+            "book_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "saved_books_owner": {
+          "name": "saved_books_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"saved_books\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"saved_books\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.forum_posts": {
+      "name": "forum_posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "thread_id": {
+          "name": "thread_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_profile_id": {
+          "name": "author_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moderation_status": {
+          "name": "moderation_status",
+          "type": "moderation_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'visible'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "forum_posts_thread_idx": {
+          "name": "forum_posts_thread_idx",
+          "columns": [
+            {
+              "expression": "thread_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "forum_posts_thread_id_forum_threads_id_fk": {
+          "name": "forum_posts_thread_id_forum_threads_id_fk",
+          "tableFrom": "forum_posts",
+          "columnsFrom": [
+            "thread_id"
+          ],
+          "tableTo": "forum_threads",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "forum_posts_author_profile_id_profiles_id_fk": {
+          "name": "forum_posts_author_profile_id_profiles_id_fk",
+          "tableFrom": "forum_posts",
+          "columnsFrom": [
+            "author_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "forum_posts_select": {
+          "name": "forum_posts_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n        select 1 from forum_threads th\n        where th.id = \"forum_posts\".\"thread_id\"\n          and (\n    th.scope = 'umum'\n    or (th.scope = 'jenjang' and exists (\n      select 1 from profiles p\n      where p.id = (select auth.uid())\n        and (p.role in ('guru','admin') or p.jenjang = th.audience_jenjang)\n    ))\n  )\n      ) and (\"forum_posts\".\"moderation_status\" <> 'removed' or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n))"
+        },
+        "forum_posts_insert": {
+          "name": "forum_posts_insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"forum_posts\".\"author_profile_id\" = (select auth.uid()) and exists (\n        select 1 from forum_threads th\n        where th.id = \"forum_posts\".\"thread_id\"\n          and (\n    th.scope = 'umum'\n    or (th.scope = 'jenjang' and exists (\n      select 1 from profiles p\n      where p.id = (select auth.uid())\n        and (p.role in ('guru','admin') or p.jenjang = th.audience_jenjang)\n    ))\n  )\n      )"
+        },
+        "forum_posts_update": {
+          "name": "forum_posts_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"forum_posts\".\"author_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)",
+          "withCheck": "\"forum_posts\".\"author_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)"
+        },
+        "forum_posts_delete": {
+          "name": "forum_posts_delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"forum_posts\".\"author_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.forum_threads": {
+      "name": "forum_threads",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "author_profile_id": {
+          "name": "author_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope": {
+          "name": "scope",
+          "type": "forum_scope",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'umum'"
+        },
+        "audience_jenjang": {
+          "name": "audience_jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Umum'"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moderation_status": {
+          "name": "moderation_status",
+          "type": "moderation_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'visible'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "forum_threads_scope_idx": {
+          "name": "forum_threads_scope_idx",
+          "columns": [
+            {
+              "expression": "scope",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "audience_jenjang",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "forum_threads_author_idx": {
+          "name": "forum_threads_author_idx",
+          "columns": [
+            {
+              "expression": "author_profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "forum_threads_author_profile_id_profiles_id_fk": {
+          "name": "forum_threads_author_profile_id_profiles_id_fk",
+          "tableFrom": "forum_threads",
+          "columnsFrom": [
+            "author_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "forum_threads_select": {
+          "name": "forum_threads_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\n    \"forum_threads\".\"scope\" = 'umum'\n    or (\"forum_threads\".\"scope\" = 'jenjang' and exists (\n      select 1 from profiles p\n      where p.id = (select auth.uid())\n        and (p.role in ('guru','admin') or p.jenjang = \"forum_threads\".\"audience_jenjang\")\n    ))\n  ) and (\"forum_threads\".\"moderation_status\" <> 'removed' or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n))"
+        },
+        "forum_threads_insert": {
+          "name": "forum_threads_insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"forum_threads\".\"author_profile_id\" = (select auth.uid())"
+        },
+        "forum_threads_update": {
+          "name": "forum_threads_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"forum_threads\".\"author_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)",
+          "withCheck": "\"forum_threads\".\"author_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)"
+        },
+        "forum_threads_delete": {
+          "name": "forum_threads_delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"forum_threads\".\"author_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.announcements": {
+      "name": "announcements",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "school_forum_id": {
+          "name": "school_forum_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by_profile_id": {
+          "name": "created_by_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "announcements_forum_idx": {
+          "name": "announcements_forum_idx",
+          "columns": [
+            {
+              "expression": "school_forum_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "announcements_school_forum_id_school_forums_id_fk": {
+          "name": "announcements_school_forum_id_school_forums_id_fk",
+          "tableFrom": "announcements",
+          "columnsFrom": [
+            "school_forum_id"
+          ],
+          "tableTo": "school_forums",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "announcements_created_by_profile_id_profiles_id_fk": {
+          "name": "announcements_created_by_profile_id_profiles_id_fk",
+          "tableFrom": "announcements",
+          "columnsFrom": [
+            "created_by_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "announcements_select": {
+          "name": "announcements_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"announcements\".\"school_forum_id\")\n)"
+        },
+        "announcements_write": {
+          "name": "announcements_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"announcements\".\"school_forum_id\")\n)",
+          "withCheck": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"announcements\".\"school_forum_id\")\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.complaints": {
+      "name": "complaints",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "school_forum_id": {
+          "name": "school_forum_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_profile_id": {
+          "name": "student_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "visibility": {
+          "name": "visibility",
+          "type": "complaint_visibility",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'privat'"
+        },
+        "status": {
+          "name": "status",
+          "type": "complaint_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'baru'"
+        },
+        "resolution_note": {
+          "name": "resolution_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "handled_by_profile_id": {
+          "name": "handled_by_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "complaints_forum_idx": {
+          "name": "complaints_forum_idx",
+          "columns": [
+            {
+              "expression": "school_forum_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "complaints_student_idx": {
+          "name": "complaints_student_idx",
+          "columns": [
+            {
+              "expression": "student_profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "complaints_school_forum_id_school_forums_id_fk": {
+          "name": "complaints_school_forum_id_school_forums_id_fk",
+          "tableFrom": "complaints",
+          "columnsFrom": [
+            "school_forum_id"
+          ],
+          "tableTo": "school_forums",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "complaints_student_profile_id_profiles_id_fk": {
+          "name": "complaints_student_profile_id_profiles_id_fk",
+          "tableFrom": "complaints",
+          "columnsFrom": [
+            "student_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "complaints_handled_by_profile_id_profiles_id_fk": {
+          "name": "complaints_handled_by_profile_id_profiles_id_fk",
+          "tableFrom": "complaints",
+          "columnsFrom": [
+            "handled_by_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "complaints_select": {
+          "name": "complaints_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"complaints\".\"student_profile_id\" = (select auth.uid())\n        or (\"complaints\".\"visibility\" = 'publik' and exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"complaints\".\"school_forum_id\")\n))\n        or exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"complaints\".\"school_forum_id\")\n)"
+        },
+        "complaints_insert": {
+          "name": "complaints_insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"complaints\".\"student_profile_id\" = (select auth.uid())\n        and exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"complaints\".\"school_forum_id\")\n)"
+        },
+        "complaints_update": {
+          "name": "complaints_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"complaints\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"complaints\".\"school_forum_id\")\n)",
+          "withCheck": "\"complaints\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"complaints\".\"school_forum_id\")\n)"
+        },
+        "complaints_delete": {
+          "name": "complaints_delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"complaints\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"complaints\".\"school_forum_id\")\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.forum_moderators": {
+      "name": "forum_moderators",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "school_forum_id": {
+          "name": "school_forum_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "appointed_by_profile_id": {
+          "name": "appointed_by_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "forum_moderators_school_forum_id_school_forums_id_fk": {
+          "name": "forum_moderators_school_forum_id_school_forums_id_fk",
+          "tableFrom": "forum_moderators",
+          "columnsFrom": [
+            "school_forum_id"
+          ],
+          "tableTo": "school_forums",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "forum_moderators_profile_id_profiles_id_fk": {
+          "name": "forum_moderators_profile_id_profiles_id_fk",
+          "tableFrom": "forum_moderators",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "forum_moderators_appointed_by_profile_id_profiles_id_fk": {
+          "name": "forum_moderators_appointed_by_profile_id_profiles_id_fk",
+          "tableFrom": "forum_moderators",
+          "columnsFrom": [
+            "appointed_by_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "forum_moderators_forum_profile_uq": {
+          "name": "forum_moderators_forum_profile_uq",
+          "columns": [
+            "school_forum_id",
+            "profile_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "forum_moderators_select": {
+          "name": "forum_moderators_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"forum_moderators\".\"school_forum_id\")\n)"
+        },
+        "forum_moderators_write": {
+          "name": "forum_moderators_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"forum_moderators\".\"school_forum_id\")\n)",
+          "withCheck": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = (select sf.school_id from school_forums sf where sf.id = \"forum_moderators\".\"school_forum_id\")\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.school_forums": {
+      "name": "school_forums",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "school_id": {
+          "name": "school_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by_profile_id": {
+          "name": "created_by_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "school_forums_school_idx": {
+          "name": "school_forums_school_idx",
+          "columns": [
+            {
+              "expression": "school_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "school_forums_school_id_schools_id_fk": {
+          "name": "school_forums_school_id_schools_id_fk",
+          "tableFrom": "school_forums",
+          "columnsFrom": [
+            "school_id"
+          ],
+          "tableTo": "schools",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "school_forums_created_by_profile_id_profiles_id_fk": {
+          "name": "school_forums_created_by_profile_id_profiles_id_fk",
+          "tableFrom": "school_forums",
+          "columnsFrom": [
+            "created_by_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "school_forums_select": {
+          "name": "school_forums_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.school_id = \"school_forums\".\"school_id\"\n)"
+        },
+        "school_forums_write": {
+          "name": "school_forums_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = \"school_forums\".\"school_id\"\n)",
+          "withCheck": "exists (\n  select 1 from profiles p\n  where p.id = (select auth.uid()) and p.role = 'admin' and p.school_id = \"school_forums\".\"school_id\"\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.reports": {
+      "name": "reports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "reporter_profile_id": {
+          "name": "reporter_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "report_target_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "report_reason",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "report_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'menunggu'"
+        },
+        "handled_by_profile_id": {
+          "name": "handled_by_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "reports_status_idx": {
+          "name": "reports_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "reports_target_idx": {
+          "name": "reports_target_idx",
+          "columns": [
+            {
+              "expression": "target_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "target_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "reports_reporter_profile_id_profiles_id_fk": {
+          "name": "reports_reporter_profile_id_profiles_id_fk",
+          "tableFrom": "reports",
+          "columnsFrom": [
+            "reporter_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "reports_handled_by_profile_id_profiles_id_fk": {
+          "name": "reports_handled_by_profile_id_profiles_id_fk",
+          "tableFrom": "reports",
+          "columnsFrom": [
+            "handled_by_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "reports_select": {
+          "name": "reports_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"reports\".\"reporter_profile_id\" = (select auth.uid()) or exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)"
+        },
+        "reports_insert": {
+          "name": "reports_insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"reports\".\"reporter_profile_id\" = (select auth.uid())"
+        },
+        "reports_update": {
+          "name": "reports_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)",
+          "withCheck": "exists (\n  select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin')\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rate_limits": {
+      "name": "rate_limits",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "window_start": {
+          "name": "window_start",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "rate_limits_deny_all": {
+          "name": "rate_limits_deny_all",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "false"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.assignments": {
+      "name": "assignments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "author_profile_id": {
+          "name": "author_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "class_id": {
+          "name": "class_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "submission_type": {
+          "name": "submission_type",
+          "type": "tugas_tipe",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'teks'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "assignments_class_idx": {
+          "name": "assignments_class_idx",
+          "columns": [
+            {
+              "expression": "class_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "due_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "assignments_author_profile_id_profiles_id_fk": {
+          "name": "assignments_author_profile_id_profiles_id_fk",
+          "tableFrom": "assignments",
+          "columnsFrom": [
+            "author_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "assignments_class_id_classes_id_fk": {
+          "name": "assignments_class_id_classes_id_fk",
+          "tableFrom": "assignments",
+          "columnsFrom": [
+            "class_id"
+          ],
+          "tableTo": "classes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "assignments_select": {
+          "name": "assignments_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from classes c\n  where c.id = \"assignments\".\"class_id\" and c.teacher_profile_id = (select auth.uid())\n) or exists (\n  select 1 from class_members cm\n  where cm.class_id = \"assignments\".\"class_id\" and cm.student_profile_id = (select auth.uid())\n)"
+        },
+        "assignments_write": {
+          "name": "assignments_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from classes c\n  where c.id = \"assignments\".\"class_id\" and c.teacher_profile_id = (select auth.uid())\n)",
+          "withCheck": "\"assignments\".\"author_profile_id\" = (select auth.uid()) and exists (\n  select 1 from classes c\n  where c.id = \"assignments\".\"class_id\" and c.teacher_profile_id = (select auth.uid())\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.class_members": {
+      "name": "class_members",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "class_id": {
+          "name": "class_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_profile_id": {
+          "name": "student_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "class_members_student_idx": {
+          "name": "class_members_student_idx",
+          "columns": [
+            {
+              "expression": "student_profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "class_members_class_id_classes_id_fk": {
+          "name": "class_members_class_id_classes_id_fk",
+          "tableFrom": "class_members",
+          "columnsFrom": [
+            "class_id"
+          ],
+          "tableTo": "classes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "class_members_student_profile_id_profiles_id_fk": {
+          "name": "class_members_student_profile_id_profiles_id_fk",
+          "tableFrom": "class_members",
+          "columnsFrom": [
+            "student_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "class_members_class_student_uq": {
+          "name": "class_members_class_student_uq",
+          "columns": [
+            "class_id",
+            "student_profile_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "class_members_select": {
+          "name": "class_members_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"class_members\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from classes c\n  where c.id = \"class_members\".\"class_id\" and c.teacher_profile_id = (select auth.uid())\n)"
+        },
+        "class_members_write": {
+          "name": "class_members_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1 from classes c\n  where c.id = \"class_members\".\"class_id\" and c.teacher_profile_id = (select auth.uid())\n)",
+          "withCheck": "exists (\n  select 1 from classes c\n  where c.id = \"class_members\".\"class_id\" and c.teacher_profile_id = (select auth.uid())\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.classes": {
+      "name": "classes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "teacher_profile_id": {
+          "name": "teacher_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "school_id": {
+          "name": "school_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "classes_teacher_idx": {
+          "name": "classes_teacher_idx",
+          "columns": [
+            {
+              "expression": "teacher_profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "classes_teacher_profile_id_profiles_id_fk": {
+          "name": "classes_teacher_profile_id_profiles_id_fk",
+          "tableFrom": "classes",
+          "columnsFrom": [
+            "teacher_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "classes_school_id_schools_id_fk": {
+          "name": "classes_school_id_schools_id_fk",
+          "tableFrom": "classes",
+          "columnsFrom": [
+            "school_id"
+          ],
+          "tableTo": "schools",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "classes_select": {
+          "name": "classes_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"classes\".\"teacher_profile_id\" = (select auth.uid()) or exists (\n  select 1 from class_members cm\n  where cm.class_id = \"classes\".\"id\" and cm.student_profile_id = (select auth.uid())\n)"
+        },
+        "classes_write": {
+          "name": "classes_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"classes\".\"teacher_profile_id\" = (select auth.uid())",
+          "withCheck": "\"classes\".\"teacher_profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.submissions": {
+      "name": "submissions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "assignment_id": {
+          "name": "assignment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_profile_id": {
+          "name": "student_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "file_url": {
+          "name": "file_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "submission_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'terkumpul'"
+        },
+        "grade": {
+          "name": "grade",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "graded_by_profile_id": {
+          "name": "graded_by_profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "graded_at": {
+          "name": "graded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "submissions_student_idx": {
+          "name": "submissions_student_idx",
+          "columns": [
+            {
+              "expression": "student_profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "submissions_assignment_id_assignments_id_fk": {
+          "name": "submissions_assignment_id_assignments_id_fk",
+          "tableFrom": "submissions",
+          "columnsFrom": [
+            "assignment_id"
+          ],
+          "tableTo": "assignments",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "submissions_student_profile_id_profiles_id_fk": {
+          "name": "submissions_student_profile_id_profiles_id_fk",
+          "tableFrom": "submissions",
+          "columnsFrom": [
+            "student_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "submissions_graded_by_profile_id_profiles_id_fk": {
+          "name": "submissions_graded_by_profile_id_profiles_id_fk",
+          "tableFrom": "submissions",
+          "columnsFrom": [
+            "graded_by_profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "submissions_assignment_student_uq": {
+          "name": "submissions_assignment_student_uq",
+          "columns": [
+            "assignment_id",
+            "student_profile_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {
+        "submissions_select": {
+          "name": "submissions_select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"submissions\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from assignments a join classes c on c.id = a.class_id\n  where a.id = \"submissions\".\"assignment_id\" and c.teacher_profile_id = (select auth.uid())\n)"
+        },
+        "submissions_insert": {
+          "name": "submissions_insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"submissions\".\"student_profile_id\" = (select auth.uid()) and exists (\n  select 1 from assignments a join class_members cm on cm.class_id = a.class_id\n  where a.id = \"submissions\".\"assignment_id\" and cm.student_profile_id = (select auth.uid())\n)"
+        },
+        "submissions_update": {
+          "name": "submissions_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"submissions\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from assignments a join classes c on c.id = a.class_id\n  where a.id = \"submissions\".\"assignment_id\" and c.teacher_profile_id = (select auth.uid())\n)",
+          "withCheck": "\"submissions\".\"student_profile_id\" = (select auth.uid()) or exists (\n  select 1 from assignments a join classes c on c.id = a.class_id\n  where a.id = \"submissions\".\"assignment_id\" and c.teacher_profile_id = (select auth.uid())\n)"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tutor_escalations": {
+      "name": "tutor_escalations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "siswa_id": {
+          "name": "siswa_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "school_id": {
+          "name": "school_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "guru_id": {
+          "name": "guru_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "judul": {
+          "name": "judul",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenjang": {
+          "name": "jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "catatan": {
+          "name": "catatan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "tutor_eskalasi_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'baru'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tutor_escalations_school_idx": {
+          "name": "tutor_escalations_school_idx",
+          "columns": [
+            {
+              "expression": "school_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "tutor_escalations_siswa_idx": {
+          "name": "tutor_escalations_siswa_idx",
+          "columns": [
+            {
+              "expression": "siswa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "tutor_escalations_session_id_tutor_sessions_id_fk": {
+          "name": "tutor_escalations_session_id_tutor_sessions_id_fk",
+          "tableFrom": "tutor_escalations",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "tableTo": "tutor_sessions",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "tutor_escalations_siswa_id_profiles_id_fk": {
+          "name": "tutor_escalations_siswa_id_profiles_id_fk",
+          "tableFrom": "tutor_escalations",
+          "columnsFrom": [
+            "siswa_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "tutor_escalations_school_id_schools_id_fk": {
+          "name": "tutor_escalations_school_id_schools_id_fk",
+          "tableFrom": "tutor_escalations",
+          "columnsFrom": [
+            "school_id"
+          ],
+          "tableTo": "schools",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        },
+        "tutor_escalations_guru_id_profiles_id_fk": {
+          "name": "tutor_escalations_guru_id_profiles_id_fk",
+          "tableFrom": "tutor_escalations",
+          "columnsFrom": [
+            "guru_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "tutor_escalations_siswa_owner": {
+          "name": "tutor_escalations_siswa_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"tutor_escalations\".\"siswa_id\" = (select auth.uid())",
+          "withCheck": "\"tutor_escalations\".\"siswa_id\" = (select auth.uid())"
+        },
+        "tutor_escalations_guru_read": {
+          "name": "tutor_escalations_guru_read",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin') and p.school_id = \"tutor_escalations\".\"school_id\")"
+        },
+        "tutor_escalations_guru_update": {
+          "name": "tutor_escalations_guru_update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin') and p.school_id = \"tutor_escalations\".\"school_id\")",
+          "withCheck": "exists (select 1 from profiles p where p.id = (select auth.uid()) and p.role in ('guru','admin') and p.school_id = \"tutor_escalations\".\"school_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tutor_messages": {
+      "name": "tutor_messages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sender": {
+          "name": "sender",
+          "type": "tutor_sender",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urutan": {
+          "name": "urutan",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "flagged": {
+          "name": "flagged",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "risk_kategori": {
+          "name": "risk_kategori",
+          "type": "tutor_risk",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tutor_messages_session_idx": {
+          "name": "tutor_messages_session_idx",
+          "columns": [
+            {
+              "expression": "session_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "urutan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "tutor_messages_session_id_tutor_sessions_id_fk": {
+          "name": "tutor_messages_session_id_tutor_sessions_id_fk",
+          "tableFrom": "tutor_messages",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "tableTo": "tutor_sessions",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "tutor_messages_owner": {
+          "name": "tutor_messages_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from tutor_sessions s where s.id = \"tutor_messages\".\"session_id\" and s.profile_id = (select auth.uid()))",
+          "withCheck": "exists (select 1 from tutor_sessions s where s.id = \"tutor_messages\".\"session_id\" and s.profile_id = (select auth.uid()))"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tutor_sessions": {
+      "name": "tutor_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "judul": {
+          "name": "judul",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mapel": {
+          "name": "mapel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenjang": {
+          "name": "jenjang",
+          "type": "jenjang",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "tutor_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'berlangsung'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tutor_sessions_profile_idx": {
+          "name": "tutor_sessions_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "tutor_sessions_profile_id_profiles_id_fk": {
+          "name": "tutor_sessions_profile_id_profiles_id_fk",
+          "tableFrom": "tutor_sessions",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "tableTo": "profiles",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "tutor_sessions_owner": {
+          "name": "tutor_sessions_owner",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"tutor_sessions\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"tutor_sessions\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.complaint_status": {
+      "name": "complaint_status",
+      "schema": "public",
+      "values": [
+        "baru",
+        "diproses",
+        "selesai"
+      ]
+    },
+    "public.complaint_visibility": {
+      "name": "complaint_visibility",
+      "schema": "public",
+      "values": [
+        "privat",
+        "publik"
+      ]
+    },
+    "public.forum_scope": {
+      "name": "forum_scope",
+      "schema": "public",
+      "values": [
+        "jenjang",
+        "umum"
+      ]
+    },
+    "public.hw_msg_tipe": {
+      "name": "hw_msg_tipe",
+      "schema": "public",
+      "values": [
+        "pertanyaan",
+        "petunjuk",
+        "langkah",
+        "jawaban",
+        "klarifikasi"
+      ]
+    },
+    "public.hw_sender": {
+      "name": "hw_sender",
+      "schema": "public",
+      "values": [
+        "siswa",
+        "ai"
+      ]
+    },
+    "public.hw_status": {
+      "name": "hw_status",
+      "schema": "public",
+      "values": [
+        "berlangsung",
+        "selesai"
+      ]
+    },
+    "public.jenjang": {
+      "name": "jenjang",
+      "schema": "public",
+      "values": [
+        "SD",
+        "SMP",
+        "SMA"
+      ]
+    },
+    "public.kesulitan": {
+      "name": "kesulitan",
+      "schema": "public",
+      "values": [
+        "mudah",
+        "sedang",
+        "sulit"
+      ]
+    },
+    "public.moderation_status": {
+      "name": "moderation_status",
+      "schema": "public",
+      "values": [
+        "visible",
+        "flagged",
+        "removed"
+      ]
+    },
+    "public.notif_type": {
+      "name": "notif_type",
+      "schema": "public",
+      "values": [
+        "tugas",
+        "forum",
+        "pengumuman",
+        "nilai",
+        "sistem"
+      ]
+    },
+    "public.report_reason": {
+      "name": "report_reason",
+      "schema": "public",
+      "values": [
+        "kasar",
+        "sara",
+        "perundungan",
+        "spam",
+        "doxxing",
+        "berbahaya",
+        "lainnya"
+      ]
+    },
+    "public.report_status": {
+      "name": "report_status",
+      "schema": "public",
+      "values": [
+        "menunggu",
+        "ditangani",
+        "ditolak"
+      ]
+    },
+    "public.report_target_type": {
+      "name": "report_target_type",
+      "schema": "public",
+      "values": [
+        "thread",
+        "post"
+      ]
+    },
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "siswa",
+        "guru",
+        "admin"
+      ]
+    },
+    "public.soal_tipe": {
+      "name": "soal_tipe",
+      "schema": "public",
+      "values": [
+        "pilihan_ganda",
+        "esai"
+      ]
+    },
+    "public.submission_status": {
+      "name": "submission_status",
+      "schema": "public",
+      "values": [
+        "terkumpul",
+        "dinilai"
+      ]
+    },
+    "public.tugas_tipe": {
+      "name": "tugas_tipe",
+      "schema": "public",
+      "values": [
+        "teks",
+        "file"
+      ]
+    },
+    "public.tutor_eskalasi_status": {
+      "name": "tutor_eskalasi_status",
+      "schema": "public",
+      "values": [
+        "baru",
+        "ditangani"
+      ]
+    },
+    "public.tutor_risk": {
+      "name": "tutor_risk",
+      "schema": "public",
+      "values": [
+        "keselamatan_diri",
+        "kekerasan",
+        "konten_dewasa",
+        "perundungan",
+        "data_pribadi"
+      ]
+    },
+    "public.tutor_sender": {
+      "name": "tutor_sender",
+      "schema": "public",
+      "values": [
+        "siswa",
+        "ai"
+      ]
+    },
+    "public.tutor_status": {
+      "name": "tutor_status",
+      "schema": "public",
+      "values": [
+        "berlangsung",
+        "selesai"
+      ]
+    }
+  },
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
