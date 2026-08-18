@@ -2,13 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Clock,
-  FileText,
-  Paperclip,
-  PlusCircle,
-  Users,
-} from "lucide-react";
+import { FileText, Paperclip, PlusCircle, Users } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +17,8 @@ import {
   sisaTenggat,
   formatTanggal,
 } from "@/lib/mock/tugas";
+import { DeadlineBadge } from "./deadline-badge";
+import { PengingatTugas } from "./pengingat";
 
 export function TugasView() {
   const { profile } = useRole();
@@ -48,6 +44,8 @@ function TugasSiswaView() {
 
   return (
     <div className="space-y-4">
+      <PengingatTugas />
+
       <div className="flex gap-1.5">
         {(
           [
@@ -81,7 +79,6 @@ function TugasSiswaView() {
         ) : (
           list.map((t) => {
             const meta = statusTugas(t.status);
-            const sisa = sisaTenggat(t.tenggat);
             return (
               <Link key={t.id} href={`/tugas/${t.id}`} className="block">
                 <Card className="transition-colors hover:border-primary/40">
@@ -114,19 +111,7 @@ function TugasSiswaView() {
                             {t.nilai}
                           </span>
                         ) : (
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 text-xs",
-                              sisa.lewat
-                                ? "text-destructive"
-                                : sisa.mendesak
-                                  ? "text-warning"
-                                  : "text-muted-foreground",
-                            )}
-                          >
-                            <Clock className="h-3.5 w-3.5" />
-                            {sisa.teks}
-                          </span>
+                          <DeadlineBadge tenggat={t.tenggat} />
                         )}
                       </div>
                     </div>
