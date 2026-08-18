@@ -5,6 +5,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { TutorStart } from "@/components/tutor/tutor-start";
 import { TutorSessions } from "@/components/tutor/tutor-sessions";
+import { NewSessionModal } from "@/components/tutor/new-session-modal";
 
 export const metadata: Metadata = {
   title: "Tutor AI Pribadi",
@@ -16,6 +17,7 @@ export default function TutorPage() {
       <PageHeader
         title="Tutor AI Pribadi"
         description="Pendamping belajar pribadi yang menjelaskan dengan sabar, sesuai jenjang, dan aman untuk anak."
+        action={<NewSessionModal />}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
