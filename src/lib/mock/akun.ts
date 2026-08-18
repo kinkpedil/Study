@@ -47,6 +47,56 @@ export const roleLabel: Record<Role, string> = {
   admin: "Admin Sekolah",
 };
 
+export type PersetujuanStatus = "belum" | "menunggu" | "disetujui";
+
+export interface PersetujuanOrtu {
+  status: PersetujuanStatus;
+  waliNama: string;
+  waliEmail: string;
+  /** Tanggal persetujuan diberikan (jika sudah). */
+  tanggal?: string;
+}
+
+/** Status persetujuan wali untuk akun siswa (data tiruan). */
+export const persetujuanOrtu: PersetujuanOrtu = {
+  status: "disetujui",
+  waliNama: "Ibu Sri Wahyuni",
+  waliEmail: "sri.wahyuni@contoh.com",
+  tanggal: "12 Juli 2025",
+};
+
+export interface IzinData {
+  id: string;
+  label: string;
+  deskripsi: string;
+  aktif: boolean;
+  /** Izin wajib tidak dapat dimatikan. */
+  wajib?: boolean;
+}
+
+/** Rincian izin pemrosesan data untuk akun anak (data tiruan). */
+export const izinData: IzinData[] = [
+  {
+    id: "belajar",
+    label: "Data belajar",
+    deskripsi: "Menyimpan progres & nilai untuk personalisasi belajar.",
+    aktif: true,
+    wajib: true,
+  },
+  {
+    id: "ai",
+    label: "Fitur AI",
+    deskripsi: "Memproses pertanyaan untuk tutor & bantuan PR AI.",
+    aktif: true,
+  },
+  {
+    id: "rekomendasi",
+    label: "Rekomendasi personal",
+    deskripsi: "Menyarankan materi berdasarkan aktivitas belajar.",
+    aktif: false,
+  },
+];
+
 export type AkunSectionId =
   | "profil"
   | "keamanan"

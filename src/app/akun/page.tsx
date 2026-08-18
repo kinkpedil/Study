@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AkunNav } from "@/components/akun/akun-nav";
 import { AkunIdentitas } from "@/components/akun/akun-identitas";
 import { ProfilForm } from "@/components/akun/profil-form";
+import { PersetujuanOrtu } from "@/components/akun/persetujuan-ortu";
 import { AkunSection } from "@/components/akun/akun-section";
 
 export const metadata: Metadata = {
@@ -75,7 +76,7 @@ export default function AkunPage() {
             judul="Privasi & Data"
             deskripsi="Perlindungan data anak dan kontrol datamu."
           >
-            <SegeraHadir teks="Kontrol privasi & data akan tersedia di bagian ini." />
+            <PersetujuanOrtu />
           </AkunSection>
         </div>
       </div>
