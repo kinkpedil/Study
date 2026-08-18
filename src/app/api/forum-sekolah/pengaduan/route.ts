@@ -7,6 +7,7 @@ import {
   buatPengaduan,
   ForumSekolahError,
 } from "@/server/forum-sekolah";
+import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,10 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+    // Rate limit: maks 5 pengaduan / 5 menit per pengguna.
+    const rl = await rateLimit(`forum:pengaduan:${profile.id}`, 5, 300);
+    if (!rl.allowed) return tooManyRequests(rl.retryAfter);
+
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body);
     if (!parsed.success) {

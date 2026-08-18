@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { getCurrentProfile } from "@/lib/auth";
 import { laporkanKonten, ModerasiError } from "@/server/moderasi";
+import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,10 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+    // Rate limit: maks 20 laporan / menit per pengguna.
+    const rl = await rateLimit(`forum:laporan:${profile.id}`, 20, 60);
+    if (!rl.allowed) return tooManyRequests(rl.retryAfter);
+
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body);
     if (!parsed.success) {

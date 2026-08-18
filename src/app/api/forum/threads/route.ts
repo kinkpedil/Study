@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth";
 import { listThreads, createThread, ForumError } from "@/server/forum";
 import { createThreadSchema } from "@/lib/validation/forum";
+import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,10 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+
+    // Rate limit: maks 5 topik / menit per pengguna.
+    const rl = await rateLimit(`forum:thread:${profile.id}`, 5, 60);
+    if (!rl.allowed) return tooManyRequests(rl.retryAfter);
 
     const body = await req.json().catch(() => null);
     const parsed = createThreadSchema.safeParse(body);
