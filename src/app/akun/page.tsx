@@ -1,0 +1,82 @@
+import type { Metadata } from "next";
+
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/layout/page-header";
+import { Card, CardContent } from "@/components/ui/card";
+import { AkunNav } from "@/components/akun/akun-nav";
+import { AkunIdentitas } from "@/components/akun/akun-identitas";
+import { AkunSection } from "@/components/akun/akun-section";
+
+export const metadata: Metadata = {
+  title: "Akun & Keamanan",
+};
+
+/** Placeholder ringkas untuk bagian yang diisi oleh task berikutnya. */
+function SegeraHadir({ teks }: { teks: string }) {
+  return (
+    <Card>
+      <CardContent className="p-5 text-sm text-muted-foreground">
+        {teks}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function AkunPage() {
+  return (
+    <AppShell>
+      <PageHeader
+        title="Akun & Keamanan"
+        description="Kelola profil, kata sandi, sesi perangkat, preferensi, dan privasi datamu."
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+        <aside className="lg:col-span-1">
+          <AkunNav />
+        </aside>
+
+        <div className="min-w-0 space-y-8">
+          <AkunSection
+            id="profil"
+            judul="Profil"
+            deskripsi="Data diri dan sekolahmu."
+          >
+            <AkunIdentitas />
+          </AkunSection>
+
+          <AkunSection
+            id="keamanan"
+            judul="Keamanan"
+            deskripsi="Kata sandi dan pengaturan akses akun."
+          >
+            <SegeraHadir teks="Pengaturan kata sandi akan tersedia di bagian ini." />
+          </AkunSection>
+
+          <AkunSection
+            id="sesi"
+            judul="Sesi & Perangkat"
+            deskripsi="Perangkat yang sedang masuk ke akunmu."
+          >
+            <SegeraHadir teks="Daftar sesi perangkat akan tersedia di bagian ini." />
+          </AkunSection>
+
+          <AkunSection
+            id="preferensi"
+            judul="Preferensi"
+            deskripsi="Notifikasi dan tampilan aplikasi."
+          >
+            <SegeraHadir teks="Pengaturan preferensi akan tersedia di bagian ini." />
+          </AkunSection>
+
+          <AkunSection
+            id="privasi"
+            judul="Privasi & Data"
+            deskripsi="Perlindungan data anak dan kontrol datamu."
+          >
+            <SegeraHadir teks="Kontrol privasi & data akan tersedia di bagian ini." />
+          </AkunSection>
+        </div>
+      </div>
+    </AppShell>
+  );
+}

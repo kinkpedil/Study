@@ -66,7 +66,11 @@ export function Header() {
           </Link>
         </Button>
 
-        <div className="flex items-center gap-2">
+        <Link
+          href="/akun"
+          aria-label="Akun & Keamanan"
+          className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-accent"
+        >
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-primary/10 text-primary">
               {initials(profile.name)}
@@ -91,7 +95,7 @@ export function Header() {
               )}
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );
