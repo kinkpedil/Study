@@ -82,3 +82,12 @@ export const reportStatusEnum = pgEnum("report_status", [
   "ditangani",
   "ditolak",
 ]);
+
+/** Bentuk pengumpulan tugas. */
+export const tugasTipeEnum = pgEnum("tugas_tipe", ["teks", "file"]);
+
+/** Status pengumpulan tugas siswa. */
+export const submissionStatusEnum = pgEnum("submission_status", [
+  "terkumpul",
+  "dinilai",
+]);

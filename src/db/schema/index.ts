@@ -14,3 +14,4 @@ export * from "./forum";
 export * from "./forum-sekolah";
 export * from "./reports";
 export * from "./rate-limits";
+export * from "./tugas";
