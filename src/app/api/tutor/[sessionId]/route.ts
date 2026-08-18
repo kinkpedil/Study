@@ -4,9 +4,11 @@ import { z } from "zod";
 import { getCurrentUserId } from "@/lib/auth";
 import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { pesanTutorSchema } from "@/lib/validation/tutor";
-import { getSesiTutor, tambahPesanSiswa, TutorError } from "@/server/tutor";
+import { getSesiTutor, kirimPesanTutor, TutorError } from "@/server/tutor";
+import { AIError } from "@/lib/ai/provider";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
  * GET /api/tutor/:sessionId — detail sesi + seluruh pesannya.
@@ -39,8 +41,8 @@ export async function GET(
 }
 
 /**
- * POST /api/tutor/:sessionId — siswa mengirim pesan ke sesi.
- * Body: { isi }. Balasan AI ditangani endpoint terpisah.
+ * POST /api/tutor/:sessionId — siswa mengirim pesan; tutor AI membalas.
+ * Body: { isi }. Mengembalikan pesan siswa dan balasan tutor.
  */
 export async function POST(
   req: NextRequest,
@@ -68,11 +70,17 @@ export async function POST(
       );
     }
 
-    const pesan = await tambahPesanSiswa(sessionId, userId, parsed.data.isi);
-    return NextResponse.json({ data: pesan }, { status: 201 });
+    const data = await kirimPesanTutor(sessionId, userId, parsed.data.isi);
+    return NextResponse.json({ data }, { status: 201 });
   } catch (err) {
     if (err instanceof TutorError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    if (err instanceof AIError) {
+      return NextResponse.json(
+        { error: "Gagal mendapat balasan tutor AI.", detail: err.message },
+        { status: 502 },
+      );
     }
     console.error("POST /api/tutor/:id gagal:", err);
     return NextResponse.json(

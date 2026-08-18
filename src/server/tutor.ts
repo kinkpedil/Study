@@ -6,9 +6,14 @@ import { db } from "@/db";
 import {
   tutorSessions,
   tutorMessages,
+  profiles,
+  learningProgress,
   type TutorSession,
   type TutorMessageRow,
 } from "@/db/schema";
+import { chatComplete, type ChatMessage } from "@/lib/ai/provider";
+import { getJenjangStyle } from "@/lib/jenjang-style";
+import type { Jenjang } from "@/lib/mock/beranda";
 import type { BuatSesiTutorInput } from "@/lib/validation/tutor";
 
 /**
@@ -177,6 +182,141 @@ export async function tambahPesanSiswa(
 
     return pesan;
   });
+}
+
+/* ------------------------------ balasan AI ------------------------------ */
+
+/** Berapa banyak pesan terakhir yang dikirim sebagai konteks ke AI. */
+const MAKS_KONTEKS = 16;
+
+/**
+ * Prompt sistem tutor: pendamping belajar pribadi yang sabar, adaptif jenjang &
+ * mapel, aman untuk anak, dan mendorong PEMAHAMAN (bukan sekadar jawaban).
+ * Menyisipkan penguasaan siswa pada mapel bila tersedia agar respons personal.
+ */
+function sistemTutor(
+  jenjang: Jenjang | null | undefined,
+  mapel: string,
+  nama: string | null,
+  penguasaan: number | null,
+): string {
+  const gaya = getJenjangStyle(jenjang);
+  const sapaan = nama ? `Nama siswamu ${nama}. ` : "";
+  const konteksNilai =
+    penguasaan !== null
+      ? `Penguasaan siswa pada ${mapel} sekitar ${penguasaan}%. Sesuaikan kedalaman: beri dasar bila rendah, tantang bila tinggi. `
+      : "";
+  return [
+    `Kamu tutor pribadi yang sabar dan ramah untuk siswa Indonesia jenjang ${gaya.label}, mapel ${mapel}.`,
+    sapaan + konteksNilai,
+    `Gaya bahasa: ${gaya.detail}`,
+    "Tujuanmu membuat siswa PAHAM: bimbing dengan pertanyaan pemantik dan langkah kecil, beri contoh nyata, dan cek pemahaman. Jangan hanya memberi jawaban jadi.",
+    "Aman untuk anak: jangan pernah membahas konten dewasa, kekerasan, atau berbahaya. Bila siswa menyiratkan bahaya pada dirinya atau masalah serius, tanggapi dengan lembut dan sarankan bicara ke guru atau orang dewasa tepercaya.",
+    "Jawab singkat, hangat, dan mudah dipahami. Gunakan bahasa Indonesia.",
+  ].join(" ");
+}
+
+/** Penguasaan siswa pada satu mapel (0-100) atau null bila belum ada data. */
+async function penguasaanMapel(
+  profileId: string,
+  mapel: string,
+): Promise<number | null> {
+  const [row] = await db
+    .select({ mastery: learningProgress.masteryPercent })
+    .from(learningProgress)
+    .where(
+      and(
+        eq(learningProgress.profileId, profileId),
+        eq(learningProgress.mapel, mapel),
+      ),
+    )
+    .limit(1);
+  return row?.mastery ?? null;
+}
+
+/** Menyusun riwayat percakapan menjadi pesan chat untuk provider AI. */
+function keChatMessages(riwayat: TutorMessageRow[]): ChatMessage[] {
+  return riwayat.slice(-MAKS_KONTEKS).map((m) => ({
+    role: m.sender === "siswa" ? "user" : "assistant",
+    content: m.content,
+  }));
+}
+
+export interface HasilPesanTutor {
+  pesanSiswa: TutorMessageRow;
+  pesanAi: TutorMessageRow;
+}
+
+/**
+ * Alur utama tutor AI: menyimpan pesan siswa, memanggil provider AI dengan
+ * konteks sesi (jenjang, mapel, penguasaan, riwayat) untuk respons personal,
+ * lalu menyimpan balasan tutor. Mengembalikan kedua pesan.
+ *
+ * Panggilan AI dilakukan di luar transaksi (operasi jaringan lambat); penulisan
+ * pesan siswa & balasan dijaga berurutan lewat kolom `urutan`.
+ */
+export async function kirimPesanTutor(
+  sessionId: string,
+  profileId: string,
+  isi: string,
+): Promise<HasilPesanTutor> {
+  const sesi = await ambilSesiMilik(sessionId, profileId);
+
+  const riwayat = await db
+    .select()
+    .from(tutorMessages)
+    .where(eq(tutorMessages.sessionId, sessionId))
+    .orderBy(asc(tutorMessages.urutan));
+
+  const urutanSiswa =
+    (riwayat.at(-1)?.urutan ?? -1) + 1;
+
+  const [pesanSiswa] = await db
+    .insert(tutorMessages)
+    .values({
+      sessionId,
+      sender: "siswa",
+      content: isi,
+      urutan: urutanSiswa,
+    })
+    .returning();
+
+  const [profil] = await db
+    .select({ nama: profiles.fullName, jenjang: profiles.jenjang })
+    .from(profiles)
+    .where(eq(profiles.id, profileId))
+    .limit(1);
+
+  const jenjang = (sesi.jenjang ?? profil?.jenjang ?? null) as Jenjang | null;
+  const penguasaan = await penguasaanMapel(profileId, sesi.mapel);
+
+  const balasan = await chatComplete(
+    [
+      {
+        role: "system",
+        content: sistemTutor(jenjang, sesi.mapel, profil?.nama ?? null, penguasaan),
+      },
+      ...keChatMessages([...riwayat, pesanSiswa]),
+    ],
+    { maxTokens: 700 },
+  );
+
+  const [pesanAi] = await db
+    .insert(tutorMessages)
+    .values({
+      sessionId,
+      sender: "ai",
+      content: balasan.trim(),
+      urutan: urutanSiswa + 1,
+    })
+    .returning();
+
+  await db
+    .update(tutorSessions)
+    .set({ updatedAt: sql`now()` })
+    .where(eq(tutorSessions.id, sessionId));
+
+  return { pesanSiswa, pesanAi };
 }
 
 /** Menandai sesi selesai (atau kembali berlangsung). */
