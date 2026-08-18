@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { profiles, schools, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { siapkanPrivasiAnak } from "@/server/privasi-anak";
 import type { DaftarInput, MasukInput } from "@/lib/validation/auth";
 
@@ -120,6 +121,27 @@ export async function masukPengguna(input: MasukInput): Promise<HasilMasuk> {
 
 /** Mengeluarkan pengguna (menghapus sesi cookie). */
 export async function keluarPengguna(): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+}
+
+/**
+ * Menghapus akun pengguna secara permanen: menghapus baris profil (mencascade
+ * data miliknya via FK), lalu pengguna Supabase Auth, dan mengakhiri sesi.
+ * Hanya dapat dilakukan atas akun sendiri (profileId dari sesi).
+ */
+export async function hapusAkun(profileId: string): Promise<void> {
+  // 1) Hapus profil → cascade ke data milik pengguna (sesi tutor, latihan, dll).
+  await db.delete(profiles).where(eq(profiles.id, profileId));
+
+  // 2) Hapus pengguna Auth (butuh service role; melewati RLS).
+  const admin = createSupabaseAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(profileId);
+  if (error) {
+    throw new AuthError(`Gagal menghapus akun: ${error.message}`, 500);
+  }
+
+  // 3) Akhiri sesi cookie di perangkat ini.
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 }
