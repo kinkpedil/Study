@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { AkunNav } from "@/components/akun/akun-nav";
 import { AkunIdentitas } from "@/components/akun/akun-identitas";
+import { ProfilForm } from "@/components/akun/profil-form";
 import { AkunSection } from "@/components/akun/akun-section";
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function AkunPage() {
             deskripsi="Data diri dan sekolahmu."
           >
             <AkunIdentitas />
+            <ProfilForm />
           </AkunSection>
 
           <AkunSection
