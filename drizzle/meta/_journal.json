@@ -64,6 +64,13 @@
       "when": 1787036551817,
       "tag": "0008_forum_threads_posts",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787036766858,
+      "tag": "0009_forum_sekolah",
+      "breakpoints": true
     }
   ]
 }

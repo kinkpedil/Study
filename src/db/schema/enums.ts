@@ -45,3 +45,16 @@ export const moderationStatusEnum = pgEnum("moderation_status", [
   "flagged",
   "removed",
 ]);
+
+/** Visibilitas pengajuan masalah (pengaduan) di forum sekolah. */
+export const complaintVisibilityEnum = pgEnum("complaint_visibility", [
+  "privat",
+  "publik",
+]);
+
+/** Status tindak lanjut pengajuan masalah. */
+export const complaintStatusEnum = pgEnum("complaint_status", [
+  "baru",
+  "diproses",
+  "selesai",
+]);
