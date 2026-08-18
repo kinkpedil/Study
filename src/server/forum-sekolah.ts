@@ -12,6 +12,7 @@ import {
   profiles,
   type Profile,
 } from "@/db/schema";
+import { catatAudit } from "@/server/audit";
 
 export class ForumSekolahError extends Error {
   constructor(
@@ -122,6 +123,15 @@ export async function buatPengumuman(
       createdByProfileId: profile.id,
     })
     .returning({ id: announcements.id });
+
+  await catatAudit({
+    schoolId: profile.schoolId,
+    actorId: profile.id,
+    actorNama: profile.fullName,
+    kategori: "forum",
+    aksi: "Membuat pengumuman sekolah",
+    target: input.title,
+  });
 
   return { id: row.id };
 }
@@ -302,7 +312,7 @@ export async function angkatModerator(
     throw new ForumSekolahError("Hanya admin sekolah.", 403);
   }
   const [target] = await db
-    .select({ schoolId: profiles.schoolId })
+    .select({ schoolId: profiles.schoolId, fullName: profiles.fullName })
     .from(profiles)
     .where(eq(profiles.id, targetProfileId))
     .limit(1);
@@ -322,6 +332,15 @@ export async function angkatModerator(
     .onConflictDoNothing({
       target: [forumModerators.schoolForumId, forumModerators.profileId],
     });
+
+  await catatAudit({
+    schoolId: profile.schoolId,
+    actorId: profile.id,
+    actorNama: profile.fullName,
+    kategori: "moderasi",
+    aksi: "Mengangkat moderator forum",
+    target: target.fullName,
+  });
 }
 
 /** Mencabut moderator (admin). */
