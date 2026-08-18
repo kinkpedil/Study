@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   index,
+  unique,
   pgPolicy,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -174,6 +175,51 @@ export const complaints = pgTable(
     }),
   ],
 );
+
+/* --------------------------- forum_moderators --------------------------- */
+
+/**
+ * Moderator forum sekolah yang diangkat admin. RLS: anggota sekolah bisa
+ * melihat daftar; hanya admin sekolah yang mengangkat/mencabut.
+ */
+export const forumModerators = pgTable(
+  "forum_moderators",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    schoolForumId: uuid("school_forum_id")
+      .notNull()
+      .references(() => schoolForums.id, { onDelete: "cascade" }),
+    profileId: uuid("profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    appointedByProfileId: uuid("appointed_by_profile_id").references(
+      () => profiles.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("forum_moderators_forum_profile_uq").on(t.schoolForumId, t.profileId),
+    pgPolicy("forum_moderators_select", {
+      as: "permissive",
+      for: "select",
+      to: "authenticated",
+      using: anggotaSekolah(sekolahDariForum(t.schoolForumId)),
+    }),
+    pgPolicy("forum_moderators_write", {
+      as: "permissive",
+      for: "all",
+      to: "authenticated",
+      using: adminSekolah(sekolahDariForum(t.schoolForumId)),
+      withCheck: adminSekolah(sekolahDariForum(t.schoolForumId)),
+    }),
+  ],
+);
+
+export type ForumModerator = typeof forumModerators.$inferSelect;
+export type NewForumModerator = typeof forumModerators.$inferInsert;
 
 export type SchoolForum = typeof schoolForums.$inferSelect;
 export type NewSchoolForum = typeof schoolForums.$inferInsert;

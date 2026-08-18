@@ -8,6 +8,7 @@ import {
   schoolForums,
   announcements,
   complaints,
+  forumModerators,
   profiles,
   type Profile,
 } from "@/db/schema";
@@ -252,4 +253,120 @@ export async function ubahStatusPengaduan(
       handledByProfileId: profile.id,
     })
     .where(eq(complaints.id, id));
+}
+
+/* ------------------------------- Moderator ------------------------------- */
+
+export interface ModeratorRingkas {
+  profileId: string;
+  nama: string;
+  peran: string;
+  sejak: string;
+}
+
+/** Daftar moderator forum sekolah (admin sekolah). */
+export async function listModerator(
+  profile: Profile,
+): Promise<ModeratorRingkas[]> {
+  if (profile.role !== "admin" || !profile.schoolId) {
+    throw new ForumSekolahError("Hanya admin sekolah.", 403);
+  }
+  const [forum] = await db
+    .select({ id: schoolForums.id })
+    .from(schoolForums)
+    .where(eq(schoolForums.schoolId, profile.schoolId))
+    .limit(1);
+  if (!forum) return [];
+
+  const rows = await db
+    .select({
+      profileId: forumModerators.profileId,
+      nama: profiles.fullName,
+      peran: profiles.role,
+      sejak: forumModerators.createdAt,
+    })
+    .from(forumModerators)
+    .innerJoin(profiles, eq(forumModerators.profileId, profiles.id))
+    .where(eq(forumModerators.schoolForumId, forum.id))
+    .orderBy(desc(forumModerators.createdAt));
+
+  return rows.map((r) => ({ ...r, sejak: r.sejak.toISOString() }));
+}
+
+/** Mengangkat moderator (admin). Target harus satu sekolah dengan admin. */
+export async function angkatModerator(
+  profile: Profile,
+  targetProfileId: string,
+): Promise<void> {
+  if (profile.role !== "admin" || !profile.schoolId) {
+    throw new ForumSekolahError("Hanya admin sekolah.", 403);
+  }
+  const [target] = await db
+    .select({ schoolId: profiles.schoolId })
+    .from(profiles)
+    .where(eq(profiles.id, targetProfileId))
+    .limit(1);
+  if (!target) throw new ForumSekolahError("Pengguna tidak ditemukan.", 404);
+  if (target.schoolId !== profile.schoolId) {
+    throw new ForumSekolahError("Pengguna bukan dari sekolahmu.", 403);
+  }
+
+  const forumId = await pastikanForum(profile);
+  await db
+    .insert(forumModerators)
+    .values({
+      schoolForumId: forumId,
+      profileId: targetProfileId,
+      appointedByProfileId: profile.id,
+    })
+    .onConflictDoNothing({
+      target: [forumModerators.schoolForumId, forumModerators.profileId],
+    });
+}
+
+/** Mencabut moderator (admin). */
+export async function cabutModerator(
+  profile: Profile,
+  targetProfileId: string,
+): Promise<boolean> {
+  if (profile.role !== "admin" || !profile.schoolId) {
+    throw new ForumSekolahError("Hanya admin sekolah.", 403);
+  }
+  const [forum] = await db
+    .select({ id: schoolForums.id })
+    .from(schoolForums)
+    .where(eq(schoolForums.schoolId, profile.schoolId))
+    .limit(1);
+  if (!forum) return false;
+
+  const deleted = await db
+    .delete(forumModerators)
+    .where(
+      and(
+        eq(forumModerators.schoolForumId, forum.id),
+        eq(forumModerators.profileId, targetProfileId),
+      ),
+    )
+    .returning({ id: forumModerators.id });
+  return deleted.length > 0;
+}
+
+/** Memperbarui nama/deskripsi ruang forum sekolah (admin). */
+export async function updateForumSekolah(
+  profile: Profile,
+  input: { name?: string; description?: string },
+): Promise<void> {
+  if (profile.role !== "admin" || !profile.schoolId) {
+    throw new ForumSekolahError("Hanya admin sekolah.", 403);
+  }
+  const forumId = await pastikanForum(profile);
+  await db
+    .update(schoolForums)
+    .set({
+      ...(input.name !== undefined ? { name: input.name } : {}),
+      ...(input.description !== undefined
+        ? { description: input.description }
+        : {}),
+    })
+    .where(eq(schoolForums.id, forumId));
 }

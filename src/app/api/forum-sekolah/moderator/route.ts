@@ -3,21 +3,16 @@ import { z } from "zod";
 
 import { getCurrentProfile } from "@/lib/auth";
 import {
-  getForumSekolah,
-  updateForumSekolah,
+  listModerator,
+  angkatModerator,
   ForumSekolahError,
 } from "@/server/forum-sekolah";
 
 export const dynamic = "force-dynamic";
 
-const updateSchema = z.object({
-  name: z.string().trim().min(3).max(120).optional(),
-  description: z.string().trim().max(500).optional(),
-});
+const schema = z.object({ profileId: z.string().uuid() });
 
-/**
- * GET /api/forum-sekolah — ruang forum sekolah pengguna + pengumumannya.
- */
+/** GET /api/forum-sekolah/moderator — daftar moderator (admin sekolah). */
 export async function GET() {
   try {
     const profile = await getCurrentProfile();
@@ -27,21 +22,22 @@ export async function GET() {
         { status: 401 },
       );
     }
-    const data = await getForumSekolah(profile);
+    const data = await listModerator(profile);
     return NextResponse.json({ data });
   } catch (err) {
-    console.error("GET /api/forum-sekolah gagal:", err);
+    if (err instanceof ForumSekolahError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    console.error("GET /api/forum-sekolah/moderator gagal:", err);
     return NextResponse.json(
-      { error: "Terjadi kesalahan saat memuat forum sekolah." },
+      { error: "Terjadi kesalahan saat memuat moderator." },
       { status: 500 },
     );
   }
 }
 
-/**
- * PATCH /api/forum-sekolah — perbarui nama/deskripsi ruang forum (admin).
- */
-export async function PATCH(req: NextRequest) {
+/** POST /api/forum-sekolah/moderator — angkat moderator (admin). */
+export async function POST(req: NextRequest) {
   try {
     const profile = await getCurrentProfile();
     if (!profile) {
@@ -51,19 +47,22 @@ export async function PATCH(req: NextRequest) {
       );
     }
     const body = await req.json().catch(() => null);
-    const parsed = updateSchema.safeParse(body);
+    const parsed = schema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Data tidak valid." }, { status: 422 });
+      return NextResponse.json(
+        { error: "profileId tidak valid." },
+        { status: 422 },
+      );
     }
-    await updateForumSekolah(profile, parsed.data);
-    return NextResponse.json({ ok: true });
+    await angkatModerator(profile, parsed.data.profileId);
+    return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
     if (err instanceof ForumSekolahError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
-    console.error("PATCH /api/forum-sekolah gagal:", err);
+    console.error("POST /api/forum-sekolah/moderator gagal:", err);
     return NextResponse.json(
-      { error: "Terjadi kesalahan saat memperbarui forum." },
+      { error: "Terjadi kesalahan saat mengangkat moderator." },
       { status: 500 },
     );
   }
