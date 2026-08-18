@@ -78,6 +78,13 @@
       "when": 1787037539260,
       "tag": "0010_forum_moderators",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1787037722659,
+      "tag": "0011_forum_reports",
+      "breakpoints": true
     }
   ]
 }

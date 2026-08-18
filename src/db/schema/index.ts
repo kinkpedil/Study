@@ -12,3 +12,4 @@ export * from "./bantuan-pr";
 export * from "./perpustakaan";
 export * from "./forum";
 export * from "./forum-sekolah";
+export * from "./reports";

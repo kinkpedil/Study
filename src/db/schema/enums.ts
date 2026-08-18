@@ -58,3 +58,27 @@ export const complaintStatusEnum = pgEnum("complaint_status", [
   "diproses",
   "selesai",
 ]);
+
+/** Tipe target laporan konten. */
+export const reportTargetTypeEnum = pgEnum("report_target_type", [
+  "thread",
+  "post",
+]);
+
+/** Alasan laporan konten. */
+export const reportReasonEnum = pgEnum("report_reason", [
+  "kasar",
+  "sara",
+  "perundungan",
+  "spam",
+  "doxxing",
+  "berbahaya",
+  "lainnya",
+]);
+
+/** Status peninjauan laporan. */
+export const reportStatusEnum = pgEnum("report_status", [
+  "menunggu",
+  "ditangani",
+  "ditolak",
+]);
