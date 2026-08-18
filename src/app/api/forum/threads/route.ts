@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
 
 import { getCurrentProfile } from "@/lib/auth";
-import { listThreads } from "@/server/forum";
+import { listThreads, createThread, ForumError } from "@/server/forum";
+import { createThreadSchema } from "@/lib/validation/forum";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +35,42 @@ export async function GET(req: NextRequest) {
     console.error("GET /api/forum/threads gagal:", err);
     return NextResponse.json(
       { error: "Terjadi kesalahan saat mengambil forum." },
+      { status: 500 },
+    );
+  }
+}
+
+/**
+ * POST /api/forum/threads — buat topik baru (akses berjenjang ditegakkan).
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const profile = await getCurrentProfile();
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Tidak terautentikasi atau profil belum dibuat." },
+        { status: 401 },
+      );
+    }
+
+    const body = await req.json().catch(() => null);
+    const parsed = createThreadSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Data tidak valid.", issues: z.treeifyError(parsed.error) },
+        { status: 422 },
+      );
+    }
+
+    const hasil = await createThread(profile, parsed.data);
+    return NextResponse.json({ data: hasil }, { status: 201 });
+  } catch (err) {
+    if (err instanceof ForumError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    console.error("POST /api/forum/threads gagal:", err);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat membuat topik." },
       { status: 500 },
     );
   }
