@@ -8,6 +8,7 @@ import {
   classMembers,
   assignments,
   submissions,
+  profiles,
   type Profile,
 } from "@/db/schema";
 import type { CreateTugasInput } from "@/lib/validation/tugas";
@@ -316,4 +317,82 @@ export async function submitTugas(
     .returning({ id: submissions.id });
 
   return { id: row.id };
+}
+
+/* ------------------------------ Penilaian ------------------------------ */
+
+export interface PengumpulanItem {
+  id: string;
+  siswa: string;
+  status: string;
+  content: string | null;
+  fileUrl: string | null;
+  grade: number | null;
+  feedback: string | null;
+  submittedAt: string;
+}
+
+/** Daftar pengumpulan sebuah tugas untuk dinilai (guru kelas). */
+export async function listPengumpulan(
+  profile: Profile,
+  assignmentId: string,
+): Promise<PengumpulanItem[]> {
+  const [a] = await db
+    .select({ teacherId: classes.teacherProfileId })
+    .from(assignments)
+    .innerJoin(classes, eq(assignments.classId, classes.id))
+    .where(eq(assignments.id, assignmentId))
+    .limit(1);
+  if (!a) throw new TugasError("Tugas tidak ditemukan.", 404);
+  if (a.teacherId !== profile.id && profile.role !== "admin") {
+    throw new TugasError("Hanya guru kelas yang dapat menilai.", 403);
+  }
+
+  const rows = await db
+    .select({
+      id: submissions.id,
+      siswa: profiles.fullName,
+      status: submissions.status,
+      content: submissions.content,
+      fileUrl: submissions.fileUrl,
+      grade: submissions.grade,
+      feedback: submissions.feedback,
+      submittedAt: submissions.submittedAt,
+    })
+    .from(submissions)
+    .innerJoin(profiles, eq(submissions.studentProfileId, profiles.id))
+    .where(eq(submissions.assignmentId, assignmentId))
+    .orderBy(asc(profiles.fullName));
+
+  return rows.map((r) => ({ ...r, submittedAt: r.submittedAt.toISOString() }));
+}
+
+/** Memberi nilai & komentar pada satu pengumpulan (guru kelas). */
+export async function nilaiPengumpulan(
+  profile: Profile,
+  submissionId: string,
+  input: { grade: number; feedback?: string },
+): Promise<void> {
+  const [s] = await db
+    .select({ teacherId: classes.teacherProfileId })
+    .from(submissions)
+    .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
+    .innerJoin(classes, eq(assignments.classId, classes.id))
+    .where(eq(submissions.id, submissionId))
+    .limit(1);
+  if (!s) throw new TugasError("Pengumpulan tidak ditemukan.", 404);
+  if (s.teacherId !== profile.id && profile.role !== "admin") {
+    throw new TugasError("Hanya guru kelas yang dapat menilai.", 403);
+  }
+
+  await db
+    .update(submissions)
+    .set({
+      grade: input.grade,
+      feedback: input.feedback,
+      status: "dinilai",
+      gradedByProfileId: profile.id,
+      gradedAt: new Date(),
+    })
+    .where(eq(submissions.id, submissionId));
 }
