@@ -158,3 +158,162 @@ export async function listTugasGuru(
 
   return rows.map((r) => ({ ...r, dueDate: r.dueDate.toISOString() }));
 }
+
+/* --------------------------- Detail & pengumpulan --------------------------- */
+
+async function keanggotaan(profile: Profile, classId: string) {
+  const [g] = await db
+    .select({ id: classes.id })
+    .from(classes)
+    .where(and(eq(classes.id, classId), eq(classes.teacherProfileId, profile.id)))
+    .limit(1);
+  if (g) return "guru" as const;
+  const [m] = await db
+    .select({ id: classMembers.id })
+    .from(classMembers)
+    .where(
+      and(
+        eq(classMembers.classId, classId),
+        eq(classMembers.studentProfileId, profile.id),
+      ),
+    )
+    .limit(1);
+  return m ? ("siswa" as const) : null;
+}
+
+export interface TugasDetail {
+  peran: "guru" | "siswa";
+  tugas: {
+    id: string;
+    title: string;
+    description: string | null;
+    mapel: string;
+    kelas: string;
+    dueDate: string;
+    submissionType: string;
+  };
+  pengumpulan: {
+    status: string;
+    content: string | null;
+    fileUrl: string | null;
+    grade: number | null;
+    feedback: string | null;
+  } | null;
+}
+
+/** Detail tugas + (untuk siswa) pengumpulannya. Akses: guru kelas / anggota. */
+export async function getTugasDetail(
+  profile: Profile,
+  assignmentId: string,
+): Promise<TugasDetail> {
+  const [a] = await db
+    .select({
+      id: assignments.id,
+      title: assignments.title,
+      description: assignments.description,
+      classId: assignments.classId,
+      dueDate: assignments.dueDate,
+      submissionType: assignments.submissionType,
+      mapel: classes.mapel,
+      kelas: classes.name,
+    })
+    .from(assignments)
+    .innerJoin(classes, eq(assignments.classId, classes.id))
+    .where(eq(assignments.id, assignmentId))
+    .limit(1);
+  if (!a) throw new TugasError("Tugas tidak ditemukan.", 404);
+
+  const peran = await keanggotaan(profile, a.classId);
+  if (!peran) throw new TugasError("Tidak berwenang atas tugas ini.", 403);
+
+  let pengumpulan: TugasDetail["pengumpulan"] = null;
+  if (peran === "siswa") {
+    const [s] = await db
+      .select({
+        status: submissions.status,
+        content: submissions.content,
+        fileUrl: submissions.fileUrl,
+        grade: submissions.grade,
+        feedback: submissions.feedback,
+      })
+      .from(submissions)
+      .where(
+        and(
+          eq(submissions.assignmentId, assignmentId),
+          eq(submissions.studentProfileId, profile.id),
+        ),
+      )
+      .limit(1);
+    pengumpulan = s ?? null;
+  }
+
+  return {
+    peran,
+    tugas: {
+      id: a.id,
+      title: a.title,
+      description: a.description,
+      mapel: a.mapel,
+      kelas: a.kelas,
+      dueDate: a.dueDate.toISOString(),
+      submissionType: a.submissionType,
+    },
+    pengumpulan,
+  };
+}
+
+/** Mengumpulkan jawaban (siswa anggota kelas). Bisa diperbarui sebelum dinilai. */
+export async function submitTugas(
+  profile: Profile,
+  assignmentId: string,
+  input: { content?: string; fileUrl?: string },
+): Promise<{ id: string }> {
+  const [a] = await db
+    .select({ classId: assignments.classId })
+    .from(assignments)
+    .where(eq(assignments.id, assignmentId))
+    .limit(1);
+  if (!a) throw new TugasError("Tugas tidak ditemukan.", 404);
+
+  const peran = await keanggotaan(profile, a.classId);
+  if (peran !== "siswa") {
+    throw new TugasError("Hanya siswa kelas ini yang bisa mengumpulkan.", 403);
+  }
+
+  const [existing] = await db
+    .select({ status: submissions.status })
+    .from(submissions)
+    .where(
+      and(
+        eq(submissions.assignmentId, assignmentId),
+        eq(submissions.studentProfileId, profile.id),
+      ),
+    )
+    .limit(1);
+  if (existing?.status === "dinilai") {
+    throw new TugasError("Tugas sudah dinilai, tidak bisa diubah.", 422);
+  }
+
+  const [row] = await db
+    .insert(submissions)
+    .values({
+      assignmentId,
+      studentProfileId: profile.id,
+      content: input.content,
+      fileUrl: input.fileUrl,
+      status: "terkumpul",
+      submittedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: [submissions.assignmentId, submissions.studentProfileId],
+      set: {
+        content: input.content,
+        fileUrl: input.fileUrl,
+        status: "terkumpul",
+        submittedAt: new Date(),
+      },
+    })
+    .returning({ id: submissions.id });
+
+  return { id: row.id };
+}
