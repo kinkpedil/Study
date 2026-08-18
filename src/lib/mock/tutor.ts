@@ -95,6 +95,52 @@ export const rekomendasiTutor: Rekomendasi[] = [
   },
 ];
 
+export type EskalasiStatus = "baru" | "ditangani";
+
+export interface EskalasiGuru {
+  id: string;
+  siswa: string;
+  jenjang: string;
+  mapel: string;
+  judul: string;
+  catatan: string;
+  timeAgo: string;
+  status: EskalasiStatus;
+}
+
+export const eskalasiGuru: EskalasiGuru[] = [
+  {
+    id: "es_1",
+    siswa: "Aisyah Putri",
+    jenjang: "SMP",
+    mapel: "Matematika",
+    judul: "Memahami pecahan senilai",
+    catatan: "Aku masih bingung kenapa harus dikali angka yang sama.",
+    timeAgo: "30 menit lalu",
+    status: "baru",
+  },
+  {
+    id: "es_2",
+    siswa: "Budi Hartono",
+    jenjang: "SMP",
+    mapel: "Fisika",
+    judul: "Gaya gesek pada bidang miring",
+    catatan: "Tutor sudah jelaskan tapi aku masih belum paham rumusnya.",
+    timeAgo: "2 jam lalu",
+    status: "baru",
+  },
+  {
+    id: "es_3",
+    siswa: "Citra Dewi",
+    jenjang: "SMP",
+    mapel: "Bahasa Indonesia",
+    judul: "Menyusun paragraf argumentasi",
+    catatan: "Minta contoh paragraf argumentasi yang baik.",
+    timeAgo: "kemarin",
+    status: "ditangani",
+  },
+];
+
 export function getTutorSession(id: string): TutorSession | undefined {
   return tutorSessions.find((s) => s.id === id);
 }
